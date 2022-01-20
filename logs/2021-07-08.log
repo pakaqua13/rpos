@@ -1,0 +1,27 @@
+2021-07-08 10:22:45 info: GET / ::ffff:192.168.0.24
+2021-07-08 10:22:51 info: GET / ::ffff:192.168.0.24
+2021-07-08 13:40:09 info: GET / ::ffff:192.168.0.24
+2021-07-08 13:40:17 info: GET / ::ffff:192.168.0.24
+2021-07-08 13:40:21 info: GET / ::ffff:192.168.0.24
+2021-07-08 13:40:26 info: GET / ::ffff:192.168.0.24
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetSystemDateAndTime
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetSystemDateAndTime
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetScopes
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetCapabilities
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetNetworkInterfaces
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetDeviceInformation
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetDNS
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetServices
+2021-07-08 13:46:52 info: SOAP / undefined / DeviceService / GetCapabilities
+2021-07-08 13:46:52 info: SOAP / undefined / MediaService / GetVideoSources
+2021-07-08 13:46:52 info: SOAP / undefined / MediaService / GetProfiles
+2021-07-08 13:46:52 info: SOAP / undefined / MediaService / GetProfiles
+2021-07-08 13:46:52 info: SOAP / undefined / MediaService / GetSnapshotUri
+2021-07-08 13:46:53 info: SOAP / undefined / MediaService / GetProfile
+2021-07-08 13:46:53 info: SOAP / undefined / MediaService / GetProfile
+2021-07-08 13:46:53 info: SOAP / undefined / MediaService / GetStreamUri
+2021-07-08 13:46:53 info: SOAP / undefined / MediaService / GetStreamUri
+2021-07-08 13:46:54 info: SOAP / undefined / MediaService / GetVideoSourceConfiguration
+2021-07-08 15:51:47 info: GET / ::ffff:192.168.0.24
+2021-07-08 15:51:48 info: GET / ::ffff:192.168.0.24
+2021-07-08 15:51:54 info: GET / ::ffff:192.168.0.24

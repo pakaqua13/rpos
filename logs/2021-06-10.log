@@ -1,0 +1,15 @@
+2021-06-10 01:42:10 info: SOAP / undefined / DeviceService / GetSystemDateAndTime
+2021-06-10 01:53:56 info: SOAP / undefined / DeviceService / GetSystemDateAndTime
+2021-06-10 04:15:01 info: SOAP / undefined / DeviceService / SetSystemDateAndTime
+2021-06-10 00:49:51 info: GET / ::ffff:192.168.0.24
+2021-06-10 00:49:55 info: GET / ::ffff:192.168.0.24
+2021-06-10 00:49:59 info: GET / ::ffff:192.168.0.24
+2021-06-10 00:56:18 info: GET / ::ffff:192.168.0.24
+2021-06-10 01:14:18 info: GET / ::ffff:192.168.0.24
+2021-06-10 01:15:03 info: GET / ::ffff:192.168.0.1
+2021-06-10 01:17:34 info: GET / ::ffff:192.168.0.1
+2021-06-10 09:16:45 info: GET / ::ffff:192.168.0.1
+2021-06-10 09:24:19 info: GET / ::ffff:192.168.0.1
+2021-06-10 11:44:30 info: SOAP / undefined / DeviceService / SetSystemDateAndTime
+2021-06-10 11:45:03 info: GET / ::ffff:192.168.0.1
+2021-06-10 11:45:09 info: GET / ::ffff:192.168.0.1
