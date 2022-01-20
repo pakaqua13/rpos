@@ -1,0 +1,27 @@
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+            <script>
+                var socket = io();
+                var tempData;
+                socket.on('connect', function(arg){
+                    console.log('server connect');
+                });
+                socket.on('message', function (data) {
+                    console.log(data);
+                });
+            </script>
+            
+            <form action="/socket" method="post">
+            <p>
+            <input type="hidden" name="socket" value="socket" />
+            </p>
+            <p>
+            TUR: <select name="tur">
+            <option value="1">1 Hz</option>
+            <option value="5">5 Hz</option>
+            <option value="15">15 Hz</option>
+            <option selected value="30">30 Hz</option>
+            </select>
+            
+            <input type="submit" />
+            </form>

@@ -1,0 +1,48 @@
+
+            <script>
+                function chooseForm(radioName) {
+                    var radios = document.getElementsByName(radioName);
+                    for (var i = 0, length = radios.length; i < length; i++) {
+                        document.getElementById('form_' + radios[i].value).style.display = 'none';
+                        if (radios[i].checked) {
+                        document.getElementById('form_' + radios[i].value).style.display = 'block';
+                        }
+                    }
+                }
+            </script>
+                <label><input type="radio" name="ddns" value="1" checked onclick="chooseForm(this.name)" />on</label>
+                <label><input type="radio" name="ddns" value="2" onclick="chooseForm(this.name)" />off</label>
+                <div id="form_1">
+                <form action="/ddns" method="post">
+                        <p>
+                        <input type="hidden" name="ddns" value="on" />
+                        </p>
+                        <p>
+                            DDNS Services: <select name="ddnsServices">
+                            <option value="freedns.afraid.org">freedns.afraid.org</option>
+                            <option selected value="no_ip.com">no_ip.com</option>
+                            </select>
+                        </p>
+                        <p>
+                            Host Name: <input type="text" name="hostName" value="cnrltest@ddns.net" />
+                        </p>
+                        <p>
+                            User Name: <input type="text" name="userName" value="wleodzz@gmail.com" />
+                        </p>
+                        <p>
+                            Password: <input type="password" name="password" value="dlwlgns3@@" />
+                        </p>
+                        <p>
+                            Update Period: <input type="text" name="updatePeriod" value="3600000" /> default: 3600000 [ms] (1 hour)
+                        </p>
+                        <input type="submit" />
+                    </form>
+                </div>
+                <div id="form_2" style="display: none">
+                    <form action="/ddns" method="post">
+                        <p>
+                        <input type="hidden" name="ddns" value="off" />
+                        </p>
+                        <input type="submit" />
+                    </form>
+                </div>

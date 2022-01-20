@@ -1,3 +1,4 @@
+///<reference path="../typings/main.d.ts" />
 ///<reference path="../rpos.d.ts" />
 
 import fs = require("fs");
@@ -6,21 +7,20 @@ import os = require('os');
 import SoapService = require('../lib/SoapService');
 import { Utils }  from '../lib/utils';
 import { Server } from 'http';
-import PTZDriver = require('../lib/PTZDriver');
 
 var utils = Utils.utils;
 
 class PTZService extends SoapService {
   ptz_service: any;
   callback: any;
-  ptz_driver: PTZDriver;
+  ptz_driver: any;
 
   presetArray = [];
 
   public ptzConfiguration: any;
 
 
-  constructor(config: rposConfig, server: Server, callback, ptz_driver: PTZDriver) {
+  constructor(config: rposConfig, server: Server, callback, ptz_driver) {
     super(config, server);
 
     this.ptz_service = require('./stubs/ptz_service.js').PTZService;
@@ -42,13 +42,8 @@ class PTZService extends SoapService {
     this.extendService();
   }
 
-  leftPad(number, targetLength) {
-    var output = number + '';
-    while (output.length < targetLength) {
-        output = '0' + output;
-    }
-    return output;
-  }
+
+
 
   extendService() {
     var port = this.ptz_service.PTZService.PTZ;
@@ -222,21 +217,6 @@ class PTZService extends SoapService {
       return GetNodesResponse;
     };
 
-    port.GetStatus = (arg) => {
-      // ToDo. Check token and return a valid response or an error reponse
-
-      var now = new Date();
-      var utc = now.getUTCFullYear() + '-' + this.leftPad((now.getUTCMonth()+1),2) + '-' + this.leftPad(now.getUTCDate(),2) + 'T'
-            + this.leftPad(now.getUTCHours(),2) + ':' + this.leftPad(now.getUTCMinutes(),2) + ':' + this.leftPad(now.getUTCSeconds(),2) + 'Z';
-
-      var GetStatusResponse = { 
-	PTZStatus: {
-	  UtcTime: utc
-        }
-      };
-      return GetStatusResponse;
-    };
-
     port.SetHomePosition = (args) => {
       if (this.callback) this.callback('sethome', {});
       var SetHomePositionResponse = { };
@@ -256,8 +236,6 @@ class PTZService extends SoapService {
 
     port.ContinuousMove = (args) =>  {
       // Update values or keep last known value
-      // ODM sends PanTilt OR Zoom but not both
-      // Other VMS systems can send PanTilt AND Zoom together
       try {pan = args.Velocity.PanTilt.attributes.x} catch (err){}; 
       try {tilt = args.Velocity.PanTilt.attributes.y} catch (err){}; 
       try {zoom = args.Velocity.Zoom.attributes.x} catch (err){}; 
@@ -289,8 +267,6 @@ class PTZService extends SoapService {
 
     port.Stop = (args) =>  {
       // Update values (to zero) or keep last known value
-      // ODM just sends Zoom:true or PanTilt:true
-      // Other VMS systems could stop Zoom and PanTilt in one command
       var pan_tilt_stop = false;
       var zoom_stop = false;
       try {pan_tilt_stop = args.PanTilt} catch (err){}; 

@@ -1,0 +1,34 @@
+{
+    "roi0": [
+        "200",
+        "300",
+        "300",
+        "400",
+        "Color",
+        "255"
+    ],
+    "roi1": [
+        "200",
+        "300",
+        "300",
+        "400",
+        "Color",
+        "255"
+    ],
+    "roi2": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    ],
+    "roi3": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+    ]
+}

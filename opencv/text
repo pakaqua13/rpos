@@ -1,0 +1,12 @@
+
+                    
+        cv::putText(frame, //target image
+            "max0: " + maxstr_0, //text
+            cv::Point(10, frame.rows / 6), //top-left position
+            cv::FONT_HERSHEY_SIMPLEX,
+            1.0,
+            CV_RGB(0, 255, 0), //font color
+            2);
+
+
+        cv::cvtColor ( frame, frame, cv::COLOR_BGR2RGB );

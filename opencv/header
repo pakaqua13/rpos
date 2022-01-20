@@ -1,0 +1,12 @@
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/videodev2.h>
+#include <opencv2/opencv.hpp>
+#include <iostream>
+
+#define VIDEO_OUT "/dev/video4" // V4L2 Loopack
+#define VIDEO_IN  "/dev/video0" // Webcam

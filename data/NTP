@@ -1,0 +1,47 @@
+
+            <script>
+                function chooseForm(radioName) {
+                    var radios = document.getElementsByName(radioName);
+                    for (var i = 0, length = radios.length; i < length; i++) {
+                        document.getElementById('form_' + radios[i].value).style.display = 'none';
+                        if (radios[i].checked) {
+                        document.getElementById('form_' + radios[i].value).style.display = 'block';
+                        }
+                    }
+                }
+            </script>
+            
+                <label><input type="radio" name="ntp" value="1" checked onclick="chooseForm(this.name)" />SNTP</label>
+                <label><input type="radio" name="ntp" value="2" onclick="chooseForm(this.name)" />Manual</label>
+                <div id="form_1">
+                    <form action="/ntp" method="post">
+                        <p>
+                        <input type="hidden" name="timeMode" value="NTP" />
+                        </p>
+                        <p>
+                        NTP Server: <select name="ntpServer">
+                        <option value="hostname">hostname</option>
+                        <option value="ip">ip</option>
+                        </select>
+                        </p>
+                        <p>
+                            Address: <input type="text" name="address" value="debian.pool.ntp.org" /> (default: debian.pool.ntp.org)
+                        </p>
+                        <p>
+                            Port: <input type="text" name="port" value="123" /> (default: 123)
+                        </p>
+                        <input type="submit" />
+                    </form>
+                </div>
+                <div id="form_2" style="display: none">
+                    <form action="/ntp" method="post">
+                        <p>
+                        <input type="hidden" name="timeMode" value="Manual" />
+                        </p>
+                        <p>
+                        Manual: <input type="text" name="manual" value="" />
+                        </p>
+                        <input type="submit" />
+                    </form>
+                </div>
+            

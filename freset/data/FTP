@@ -1,0 +1,23 @@
+
+  <form action="/ftp" method="post">
+    <p>
+        Mode: <select name="FTP">
+        <option selected value="none">none</option>
+        <option value="ftp">FTP</option>
+        </select>
+    </p>
+    <p>
+      FTP Server Address: <input type="text" name="address" value="ftp.unknown.com">
+    </p>
+    <p>
+        Port: <input type="text" name="port" value="21"> [21, 125 ~ 65535]
+    </p>
+    <p>
+        User Name: <input type="text" name="userName" value="admin">
+    </p>
+    <p>
+        Password: <input type="password" name="password" value="admin">
+    </p>
+    <input type="submit">
+  </form>
+  

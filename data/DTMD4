@@ -1,0 +1,32 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+<OBJECT classid="clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921"
+        codebase="http://downloads.videolan.org/pub/videolan/vlc/latest/win32/axvlc.cab" width="640" height="480"
+        id="vlc" events="True">
+        <param name="Src" value="rtsp://192.168.0.26:8554/h264" />
+        <param name="ShowDisplay" value="True" />
+        <param name="AutoLoop" value="False" />
+        <param name="AutoPlay" value="True" />
+        <embed id="vlcEmb" type="application/x-google-vlc-plugin" version="VideoLAN.VLCPlugin.2" autoplay="yes"
+            loop="no" width="100%" height="100%" target="rtsp://192.168.0.26:8554/h264"></embed>
+    </OBJECT>
+    <OBJECT classid="clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921"
+        codebase="http://downloads.videolan.org/pub/videolan/vlc/latest/win32/axvlc.cab" width="640" height="480"
+        id="vlc" events="True">
+        <param name="Src" value="rtsp://192.168.0.26:8555/h264" />
+        <param name="ShowDisplay" value="True" />
+        <param name="AutoLoop" value="False" />
+        <param name="AutoPlay" value="True" />
+        <embed id="vlcEmb" type="application/x-google-vlc-plugin" version="VideoLAN.VLCPlugin.2" autoplay="yes"
+            loop="no" width="100%" height="100%" target="rtsp://192.168.0.26:8554/h264"></embed>
+    </OBJECT>
+    
+    <script>
+        var socket = io();
+        var tempData;
+        socket.on('connect', function(arg){
+            console.log('server connect');
+        });
+        socket.on('message', function (data) {
+            console.log(data);
+        });
+    </script>

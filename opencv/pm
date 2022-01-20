@@ -1,0 +1,5 @@
+
+        cv::rectangle(frame, cv::Point(500, 500), cv::Point(600, 600), (255, 0, 0), -1);
+                            
+        cv::rectangle(frame, cv::Point(600, 600), cv::Point(700, 700), (255, 0, 0), -1);
+                            

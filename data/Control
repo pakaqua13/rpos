@@ -1,0 +1,116 @@
+
+        <form action="/control" method="post">
+            <p>
+                AGC Control: <select name="agcControl">
+                <option selected value="0x00">MGC</option>
+                <option value="0x01">AGC</option>
+                </select>
+            </p>
+            <p>
+                Inverse Control: <select name="inverseControl">
+                <option selected value="0x00">Disable</option>
+                <option value="0x01">Enable</option>
+                </select>
+            </p>
+            <p>
+                MGC Cotrast (0 ~ 1024): <input type="number" name="mgcContrast" min="0" max="1024" step="1" value="255">
+            </p>
+            <p>
+                MGC Brightness (0 ~ 511): <input type="number" name="mgcBrightness" min="0" max="511" step="1" value="256">
+            </p>
+            <p>
+                Edge Enhance Mode: <select name="edgeEnhanceMode">
+                <option selected value="0x00">Disable</option>
+                <option value="0x03">Enable</option>
+                </select>
+            </p>
+            <p>
+                Edge Enhance Level (0 ~ 1000): <input type="number" name="edgeEnhanceLevel" min="0" max="1000" step="1" value="400">
+            </p>
+            <p>
+                Save Setting: <select name="saveSetting">
+                    <option selected value="0x00">Save Setting</option>
+                    <option value="0x03">Save Temp</option>
+                    <option value="0x09">Save Factory Default Temp</option>
+                    </select>
+            </p>
+            <p>
+                Shutter: 보류
+            </p>
+            <p>
+                Flip Mirror: <select name="flipMirror">
+                <option selected value="0x00">Flip : Off, Mirror : Off</option>
+                <option value="0x01">Flip : Off, Mirror : On</option>
+                <option value="0x02">Flip : On, Mirror : Off</option>
+                <option value="0x03">Flip : On, Mirror : On</option>
+                </select>
+            </p>
+            <p>
+                Limit Gain (0 ~ 255): <input type="number" name="limitGain" min="0" max="1000" step="1" value="220">
+            </p>
+            <p>
+                Shutter Mode: <select name="shutterMode">
+                <option selected value="0x00">Temprature Mode</option>
+                <option value="0x01">Time Mode</option>
+                <option value="0x02">Manual Mode</option>
+                </select>
+            </p>
+            <p>
+                Shutter Time: (1(30s) ~ 120(60m)): <input type="number" name="shutterTime" min="1" max="120" step="1" value="1">
+            </p>
+            <p>
+                Shutter Temp: (1 ~ 10): <input type="number" name="shutterTemp" min="1" max="10" step="1" value="1">
+            </p>
+            <p>
+                Gamma Correction: (1 ~ 5): <input type="number" name="gammaCorrection" min="1" max="5" step="1" value="2">
+            </p>
+            <p>
+                Temp Command: <select name="tempCommand">
+                <option selected value="0x80">Read Temperature Status</option>
+                <option value="0x00">Read Temperature Status</option>
+                <option value="0x10">Select 1st Temp Period</option>            
+                <option value="0x11">Select 2nd Temp Period</option>
+                <option value="0x12">Select 3rd Temp Period</option>        
+                <option value="0x13">Select 4th Temp Period</option>
+                </select>
+            </p>
+            <p>
+                De-Noise Filter: <select name="deNoiseFilter">
+                <option value="0x00">Filter Off</option>
+                <option value="0x01">Gaussian Filter On</option>
+                <option value="0x02">Bilateral Filter On</option>            
+                <option selected value="0x03">Gaussian + Bilateral Filter On</option>
+                </select>
+            </p>
+            <p>
+                Image Enhancement: <select name="imageEnhancement">
+                <option value="0x00">On</option>
+                <option selected value="0x01">Off</option>
+                </select>
+            </p>
+            <p>
+                Raw Data Control: <select name="rawDataControl">
+                <option selected value="0x00">8 bits data output</option>
+                <option value="0x01">16 bits data output</option>
+                </select>
+            </p>
+            <p>
+                Dead Update: <select name="deadUpdate">
+                <option selected value="0x00">Dead Mode Off</option>
+                <option value="0x01">Dead Mode On</option>
+                <option value="0x03">Bram Write (Add)</option>
+                <option value="0x05">Flash Write (Write)</option>
+                </select>
+            </p>
+            <p>
+                Set Output Data: <select name="setOutputData">
+                <option selected value="0x00">Mix (Image + Temp)</option>
+                <option value="0x01">Image Only</option>
+                <option value="0x02">Temp Only</option>
+                </select>
+            </p>
+            <p>
+                Engine Information Request: 보류
+            </p>
+            <input type="submit" />
+        </form>

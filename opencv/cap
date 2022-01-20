@@ -1,0 +1,44 @@
+
+int main ( int argc, char **argv ) {
+    cv::VideoCapture cap;
+    struct v4l2_format vid_format;
+    size_t framesize = WIDTH * HEIGHT * 3;
+    int fd = 0;
+
+    if( cap.open ( VIDEO_IN ) ) {
+        cap.set ( cv::CAP_PROP_FRAME_WIDTH , WIDTH  );
+        cap.set ( cv::CAP_PROP_FRAME_HEIGHT, HEIGHT );
+    } else {
+        std::cout << "Unable to open video input!" << std::endl;
+    }
+
+    if ( (fd = open ( VIDEO_OUT, O_RDWR )) == -1 )
+        printf ("Unable to open video output!");
+
+    memset ( &vid_format, 0, sizeof(vid_format) );
+    vid_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
+
+    if ( ioctl ( fd, VIDIOC_G_FMT, &vid_format ) == -1 )
+        printf ( "Unable to get video format data. Errro: %d\n", errno );
+
+    vid_format.fmt.pix.width       = cap.get ( CV_CAP_PROP_FRAME_WIDTH  );
+    vid_format.fmt.pix.height      = cap.get ( CV_CAP_PROP_FRAME_HEIGHT );
+    vid_format.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
+    vid_format.fmt.pix.sizeimage   = framesize;
+    vid_format.fmt.pix.field       = V4L2_FIELD_NONE;
+
+    if ( ioctl ( fd, VIDIOC_S_FMT, &vid_format ) == -1 )
+        printf ( "Unable to set video format! Errno: %d\n", errno );
+
+    cv::Mat frame ( cap.get(CV_CAP_PROP_FRAME_HEIGHT), 
+    cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3 );
+    cv::Mat frameROI_0;
+    
+    printf ( "Please open the virtual video device (/dev/video<x>) e.g. with VLC\n" );
+    std::cout << "sample starts" << VIDEO_IN << std::endl;
+
+    while (1) {
+        cap >> frame;
+        cv::cvtColor ( frame, frame, cv::COLOR_BGR2GRAY ); 
+        
+        

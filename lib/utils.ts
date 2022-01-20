@@ -1,12 +1,11 @@
-﻿///<reference path="../rpos.d.ts"/>
-
+﻿/// <reference path="../typings/main.d.ts"/>
 import { networkInterfaces } from 'os';
 import { spawn, ChildProcess } from 'child_process';
 import { EventEmitter} from "events";
 import { Writable, Readable } from "stream";
 import * as crypto from "crypto";
 
-import clc = require('cli-color');
+var clc = require('cli-color');
 
 export module Utils {
   export enum logLevel {
@@ -17,30 +16,21 @@ export module Utils {
     Debug = 4
   }
 
-  // Dummy Process is used when we don't want to spawn a local excutable, eg a dummy RTSP server
   class DummyProcess extends EventEmitter implements ChildProcess {
     stdin: Writable;
     stdout: Readable;
     stderr: Readable;
-    stdio: [Writable, Readable, Readable, Writable | Readable, Writable | Readable];
-    readonly killed: boolean;
-    readonly pid: number;
-    readonly connected: boolean;
-    readonly exitCode: number | null;
-    readonly signalCode: number | null;
-    readonly spawnargs: string[];
-    readonly spawnfile: string;
+    stdio: [Writable, Readable, Readable];
+    pid: number;
     constructor() {
       super();
       this.stdin = new Writable();
       this.stderr = this.stdout = new DummyReadable();
     }
-    kill(signal?: any): boolean { return true };
-    send(message: any, sendHandle?: any): boolean { return true };
+    kill(signal?: string) { };
+    send(message: any, sendHandle?: any) { };
     disconnect() { };
     unref() { };
-    ref() { };
-
   }
 
   class DummyReadable extends Readable {
@@ -61,7 +51,7 @@ export module Utils {
         cpuserial = f.match(/Serial[\t]*: ([0-9a-f]{16})/)[1];
       } catch (ex) {
         this.log.error("Failed to read serial : %s", ex.message);
-        cpuserial = "000000000";
+        cpuserial = "ERROR000000000";
       }
       return cpuserial;
     }
@@ -177,14 +167,15 @@ export module Utils {
     }
 
     static cleanup(callback: () => void) {
-      // https://stackoverflow.com/questions/14031763/doing-a-cleanup-action-just-before-node-js-exits
+
       // attach user callback to the process event emitter
       // if no callback, it will still exit gracefully on Ctrl-C
       callback = callback || (() => { });
+      process.on('cleanup', callback);
 
       // do app specific cleaning before exiting
       process.on('exit', () => {
-        callback;
+        process.emit('cleanup');
       });
 
       // catch ctrl+c event and exit normally

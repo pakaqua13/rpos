@@ -1,0 +1,29 @@
+
+        
+        frameROI_0 = frame.clone();
+        cv::cvtColor ( frameROI_0, frameROI_0, cv::COLOR_GRAY2RGB );
+        cv::Rect roi_0(cv::Point(20, 10),cv::Point(200, 400));
+        for (int y = 0; y < frame(roi_0).rows; y++) { 
+            for (int x = 0; x < frame(roi_0).cols; x++) { 
+                if (frame(roi_0).at<uchar>(y, x) > 220) { 
+                    frameROI_0(roi_0).at<cv::Vec3b>(y, x)[0] = 0;
+                    frameROI_0(roi_0).at<cv::Vec3b>(y, x)[1] = 0;
+                    frameROI_0(roi_0).at<cv::Vec3b>(y, x)[2] = frame(roi_0).at<uchar>(y, x); 
+                } 
+            }
+        }
+        
+        double minVal_0; 
+        double maxVal_0; 
+        cv::Point minLoc_0; 
+        cv::Point maxLoc_0; 
+
+        minMaxLoc( frame(roi_0), &minVal_0, &maxVal_0, &minLoc_0, &maxLoc_0 );
+        auto minstr_0 = std::to_string(minVal_0); 
+        auto maxstr_0 = std::to_string(maxVal_0);
+        std::cout << maxstr_0 << std::endl;
+                            
+        cv::cvtColor ( frame, frame, cv::COLOR_GRAY2BGR );
+        frameROI_0(roi_0).copyTo(frame(roi_0));
+        cv::rectangle(frame, cv::Point(20, 10), cv::Point(200, 400), cv::Scalar(0, 255, 0), 3);
+                    

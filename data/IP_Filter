@@ -1,0 +1,15 @@
+<form action="/ipfilter" method="post">
+<p>
+    Select: <select name="select">
+    <option selected value="allow">allow</option>
+    <option value="block">block</option>
+    </select>
+</p>
+<p>
+    Start IP: <input type="text" name="startIP">
+</p>
+<p>
+    End IP: <input type="text" name="endIP">
+</p>
+<input type="submit" />
+</form>

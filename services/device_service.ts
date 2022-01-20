@@ -1,3 +1,4 @@
+///<reference path="../typings/main.d.ts" />
 ///<reference path="../rpos.d.ts" />
 
 import fs = require("fs");

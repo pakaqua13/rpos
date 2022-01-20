@@ -1,0 +1,23 @@
+{
+    "command": [{
+        "agcControl": "0x00",
+        "inverseControl": "0x00",
+        "mgcContrast": "255",
+        "mgcBrightness": "256",
+        "edgeEnhanceMode": "0x00",
+        "edgeEnhanceLevel": "400",
+        "saveSetting": "0x00",
+        "flipMirror": "0x00",
+        "limitGain": "220",
+        "shutterMode": "0x00",
+        "shutterTime": "1",
+        "shutterTemp": "1",
+        "gammaCorrection": "2'",
+        "tempCommand": "0x80",
+        "deNoiseFilter": "0x03",
+        "imageEnhancement": "0x01",
+        "rawDataControl": "0x00",
+        "deadUpdate": "0x00",
+        "setOutputData": "0x00"
+    }]
+}

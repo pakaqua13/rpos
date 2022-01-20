@@ -1,0 +1,17 @@
+
+            <form action="/port" method="post" onsubmit="return confirm('시스템을 재부팅하면 적용됩니다');">
+            <p>
+            HTTP Port : <input type="text" name="httpPort" value="8081" /> [80, 1025 ~ 65535]
+            </p>
+            <p>
+            HTTPS Port : <input type="text" name="httpsPort" value="8443" /> [443, 1025 ~ 65535]
+            </p>
+            <p>
+            RTSP Port : <input type="text" name="rtspPort" value="8555" /> [554, 1025 ~ 65535]
+            </p>
+            <p>
+            Event Port : <input type="text" name="eventPort" value="1268" /> [1025 ~ 65535]
+            </p>
+            <input type="submit" />
+            </script>
+            </form>
