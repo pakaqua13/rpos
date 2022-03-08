@@ -9,7 +9,7 @@
 
 
 #define VIDEO_OUT "/dev/video4" 
-#define VIDEO_IN  "/dev/video0" 
+#define VIDEO_IN  "/dev/video1" 
 
 #define WIDTH  1280
 #define HEIGHT 720
@@ -46,81 +46,14 @@ int main ( int argc, char **argv ) {
         if ( ioctl ( fd, VIDIOC_S_FMT, &vid_format ) == -1 )
             printf ( "Unable to set video format! Errno: %d\n", errno );
 
-        cv::Mat frame ( cap.get(CV_CAP_PROP_FRAME_HEIGHT), 
-        cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3 );
-        cv::Mat frameROI;
-        cv::Mat thermal = cv::imread("test1.jpg", 0);
+        cv::Mat frame ( cap.get(CV_CAP_PROP_FRAME_HEIGHT), cap.get(CV_CAP_PROP_FRAME_WIDTH), CV_8UC3 );
+
         printf ( "Please open the virtual video device (/dev/video<x>) e.g. with VLC\n" );
-        // std::cout << "sample starts" << VIDEO_IN << std::endl;
+
         while (1) {
             cap >> frame;
-            // cv::cvtColor ( frame, frame, cv::COLOR_BGR2RGB ); // Webcams sometimes deliver video in BGR not RGB. so we need to convert
-            // cv::cvtColor ( frame, frame, cv::COLOR_GRAY2RGB );
-            
-            cv::cvtColor ( frame, frame, cv::COLOR_BGR2GRAY );
-            // frame = thermal;
-            // cv::cvtColor ( thermal, thermal, cv::COLOR_GRAY2RGB );
-            for (int row = 0; row < frame.rows; row++)
-            {
-                for (int col = 0; col < frame.cols; col++) 
-                {
-                    // frame.at<cv::Vec3b>(row, col)[0] = thermal.at<cv::Vec3b>(row, col)[0];
-                    // frame.at<cv::Vec3b>(row, col)[1] = thermal.at<cv::Vec3b>(row, col)[1];
-                    // frame.at<cv::Vec3b>(row, col)[2] = thermal.at<cv::Vec3b>(row, col)[2];
-                    frame.at<uchar>(row,col) = thermal.at<uchar>(row,col);;
-                }
-            }
-
-            frameROI = frame.clone();
-            cv::cvtColor ( frameROI, frameROI, cv::COLOR_GRAY2RGB );
-            // cv::cvtColor ( frame, frame, cv::COLOR_GRAY2BGR );
-            cv::Rect roi(200, 10, 300, 400);
-            for (int y = 0; y < frame.rows; y++) { 
-                for (int x = 0; x < frame.cols; x++) { 
-                    if (frame.at<uchar>(y, x) > 235) { 
-                        frameROI.at<cv::Vec3b>(y, x)[0] = 0;
-                        frameROI.at<cv::Vec3b>(y, x)[1] = 0;
-                        frameROI.at<cv::Vec3b>(y, x)[2] = frame.at<uchar>(y, x); 
-                    } 
-                }
-            }
-
-            
-            double minVal; 
-            double maxVal; 
-            cv::Point minLoc; 
-            cv::Point maxLoc;
-
-            minMaxLoc( frame(roi), &minVal, &maxVal, &minLoc, &maxLoc );
-            auto minstr = std::to_string(minVal); 
-            auto maxstr = std::to_string(maxVal);
-            cv::cvtColor ( frame, frame, cv::COLOR_GRAY2BGR );
-            
-            // cv::applyColorMap(frame, frame, cv::COLORMAP_JET);
-            frameROI(roi).copyTo(frame(roi));
-
-            cv::rectangle(frame, cv::Point(50, 50), cv::Point(150, 150), (255, 0, 0), -1);
-            cv::rectangle(frame, cv::Point(50, 50), cv::Point(150, 150), (0, 255, 255), 3);
-            cv::rectangle(frame, cv::Point(200, 10), cv::Point(500, 410), cv::Scalar(0, 255, 0), 3);
-            // cv::putText(frame, //target image
-            //     "r0: " + minstr, //text
-            //     cv::Point(10, frame.rows / 4), //top-left position
-            //     cv::FONT_HERSHEY_SIMPLEX,
-            //     1.0,
-            //     CV_RGB(118, 185, 0), //font color
-            //     2);
-            cv::putText(frame, //target image
-                "max: " + maxstr, //text
-                cv::Point(10, frame.rows / 6), //top-left position
-                cv::FONT_HERSHEY_SIMPLEX,
-                1.0,
-                CV_RGB(0, 255, 0), //font color
-                2);
-
             cv::cvtColor ( frame, frame, cv::COLOR_BGR2RGB );
             write ( fd, frame.data, framesize );
-            // printf ( "success \n" );
-            std::cout << "%s" << maxstr << std::endl;
         }
 }
 // g++ -ggdb `pkg-config --cflags --libs opencv` sample.cpp -o sample
