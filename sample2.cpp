@@ -5,8 +5,11 @@
 #include <sys/ioctl.h>
 #include <linux/videodev2.h>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
 #include <iostream>
-
+#include <string>
 
 #define VIDEO_OUT "/dev/video4" 
 #define VIDEO_IN  "/dev/video1" 
@@ -37,8 +40,8 @@ int main ( int argc, char **argv ) {
         if ( ioctl ( fd, VIDIOC_G_FMT, &vid_format ) == -1 )
             printf ( "Unable to get video format data. Errro: %d\n", errno );
 
-        vid_format.fmt.pix.width       = cap.get ( CV_CAP_PROP_FRAME_WIDTH  );
-        vid_format.fmt.pix.height      = cap.get ( CV_CAP_PROP_FRAME_HEIGHT );
+        vid_format.fmt.pix.width       = WIDTH;
+        vid_format.fmt.pix.height      = HEIGHT;
         vid_format.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
         vid_format.fmt.pix.sizeimage   = framesize;
         vid_format.fmt.pix.field       = V4L2_FIELD_NONE;
