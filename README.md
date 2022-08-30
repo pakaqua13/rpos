@@ -1,3 +1,8 @@
+# Fork
+This fork is to start working on a Profile T feature implementation. (More specifically two-way audio)
+WIP - At this point the camera side of work should be functional. I just need a proper Onvif Profile T client to test it. 
+I started working on a Onvif Linux Client for the sole purpose of testing this. (Repo TBD)
+
 # rpos
 
 Node.js based ONVIF Camera/NVT software that turns a Raspberry Pi, Windows, Linux or Mac computer into an ONVIF Camera and RTSP Server. It implements the key parts of Profile S and Profile T (http://www.onvif.org). It has special support for the Raspberry Pi Camera and Pimoroni Pan-Tilt HAT.
