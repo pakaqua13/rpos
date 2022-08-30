@@ -573,6 +573,7 @@ class MediaService extends SoapService {
 
     //Overriding local trt prefix because its invoked from DeviceService as well
     port.GetServiceCapabilities = (args /*, cb, headers*/) => {
+      console.log("GetServiceCapabilities : " + JSON.stringify(args));
       var GetServiceCapabilitiesResponse = {
         'trt:Capabilities': {
           attributes: {
@@ -658,6 +659,7 @@ class MediaService extends SoapService {
     };
 
     port.GetVideoSources = (args) => {
+        utils.log.debug('Getting Video Sources');
         var GetVideoSourcesResponse = { VideoSources: [videoSource] };
         return GetVideoSourcesResponse;
     }
@@ -711,6 +713,7 @@ class MediaService extends SoapService {
     };
 
     port.GetSnapshotUri = (args) => {
+      console.log("GetSnapshotUri : " + JSON.stringify(args));
       var GetSnapshotUriResponse = {
         MediaUri : {
           "tt:Uri" : "http://" + utils.getIpAddress() + ":" + this.config.ServicePort + "/web/snapshot.jpg",
@@ -719,6 +722,7 @@ class MediaService extends SoapService {
           "tt:Timeout" : "PT30S"
         }
       };
+      console.log("Return : " + JSON.stringify(GetSnapshotUriResponse));
       return GetSnapshotUriResponse;
     };
 
@@ -743,50 +747,57 @@ class MediaService extends SoapService {
       return GetAudioEncoderConfigurationOptionsResponse;
     };
 
-    port.GetCompatibleVideoSourceConfigurations = (args) => {
-      // Args contains a ProfileToken
-      // We will return all Video Sources as being compatible
-
-      let GetCompatibleVideoSourceConfigurationsResponse = { Configurations: [videoSourceConfiguration] };
-      return GetCompatibleVideoSourceConfigurationsResponse;
+    port.GetAudioSources = (args) => {
+      utils.log.debug('GetAudioSources : ' + JSON.stringify(args));
+      var GetAudioSourcesResponse = { AudioSources: [audioSource] };
+      return GetAudioSourcesResponse;
     }
 
-    port.GetVideoSourceConfigurationOptions = (Args) => {
-      // Args will contain a ConfigurationToken or ProfileToken
-      var GetVideoSourceConfigurationOptionsResponse = { 
-        Options : {
-          BoundsRange : { 
-            XRange : { 
-              Min : 0,
-              Max : 0
-            },
-            YRange : { 
-              Min : 0,
-              Max : 0
-            },
-            WidthRange : { 
-              Min : 1920,
-              Max : 1920
-            },
-            HeightRange : { 
-              Min : 1080,
-              Max : 1080
-            }
-          },
-          VideoSourceTokensAvailable : "video_src_token"
-          //Extension : { 
-            //Rotate : { 
-              //Mode : { xs:string},
-              //DegreeList : { 
-                //Items : [{ xs:int}]
-              //},
-              //Extension : { }
-            //},
-            //Extension : { }
-          //}
-        }
-      };
-        return GetVideoSourceConfigurationOptionsResponse;
+    port.GetAudioSourceConfigurations = (args) => {
+      utils.log.debug('GetAudioSourceConfigurations : ' + JSON.stringify(args));
+      var GetAudioSourceConfigurationsResponse = { Configurations: [audioSourceConfiguration] };
+      return GetAudioSourceConfigurationsResponse;
+    };
+
+    port.GetAudioSourceConfiguration = (args) => {
+      utils.log.debug('GetAudioSourceConfiguration : ' + JSON.stringify(args));
+      var GetAudioSourceConfigurationResponse = { Configurations: audioSourceConfiguration };
+      return GetAudioSourceConfigurationResponse;
+    };
+
+    port.GetAudioEncoderConfigurationOptions = (args) => {
+      utils.log.debug('GetAudioEncoderConfigurationOptions : ' + JSON.stringify(args));
+      var GetAudioEncoderConfigurationOptionsResponse = { Options: [audioEncoderConfigurationOption] };
+      return GetAudioEncoderConfigurationOptionsResponse;
+    };
+    port.GetAudioEncoderConfigurationOption = (args) => {
+      utils.log.debug('GetAudioEncoderConfigurationOption : ' + JSON.stringify(args));
+      var GetAudioEncoderConfigurationOptionResponse = { Configurations: audioEncoderConfigurationOption };
+      return GetAudioEncoderConfigurationOptionResponse;
+    };
+
+    port.GetAudioOutputConfigurations = (args) => {
+      utils.log.debug('GetAudioOutputConfigurations : ' + JSON.stringify(args));
+      var GetAudioOutputConfigurationsResponse = { Configurations: audioOutputConfiguration };
+      return GetAudioOutputConfigurationsResponse;
+    }
+
+    //port.AddAudioOutputConfiguration = (args) => {
+    //  utils.log.debug('Adding Audio Output Config ' + JSON.stringify(args));
+    //}
+
+    port.GetAudioDecoderConfigurations = (args) => {
+      console.log('\tGetAudioDecoderConfigurations : ' + JSON.stringify(args));
+      var GetAudioDecoderConfigurationsResponse = { Configurations: audioDecoderConfiguration};
+      console.log('\tReturn' + JSON.stringify(GetAudioDecoderConfigurationsResponse));
+      return GetAudioDecoderConfigurationsResponse;
+    }
+
+    port.GetAudioDecoderConfigurationOptions = (args) => {
+      console.log('\tGetAudioDecoderConfigurationOptions : ' + JSON.stringify(args));
+      var GetAudioDecoderConfigurationOptionsResponse = { Options: [audioDecoderConfigurationOption]};
+      console.log('\tReturn : ' + JSON.stringify(GetAudioDecoderConfigurationOptionsResponse));
+      return GetAudioDecoderConfigurationOptionsResponse;
     }
   }
 }

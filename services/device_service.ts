@@ -104,6 +104,7 @@ class DeviceService extends SoapService {
     };
 
     port.GetServices = (args /*, cb, headers*/) => {
+      console.log("GetServices : " + JSON.stringify(args));
       // ToDo. Check value of args.IncludeCapability
       var GetServicesResponse = {
         Service : [
@@ -402,7 +403,10 @@ class DeviceService extends SoapService {
         "tt:ScopeDef": "Fixed",
         "tt:ScopeItem": ("onvif://www.onvif.org/hardware/" + this.config.DeviceInformation.Model)
       });
-
+      GetScopesResponse.Scopes.push({
+        ScopeDef: "Fixed",
+        ScopeItem: "onvif://www.onvif.org/Profile/T"
+      });
       GetScopesResponse.Scopes.push({
         "tt:ScopeDef": "Fixed",
         "tt:ScopeItem": ("onvif://www.onvif.org/name/" + this.config.DeviceInformation.Manufacturer)
@@ -597,6 +601,7 @@ class DeviceService extends SoapService {
           }
         }]
       };
+      console.log("return : " + JSON.stringify(GetRelayOutputsResponse));
       return GetRelayOutputsResponse;
     };
 
