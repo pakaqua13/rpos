@@ -36,7 +36,7 @@ class Camera {
 
   settings: CameraSettingsBase = {
     forceGop: true,
-    resolution: <Resolution>{ Width: 1280, Height: 720 },
+    resolution: <Resolution>{ Width: 640, Height: 480 },
     framerate: 25,
   }
   

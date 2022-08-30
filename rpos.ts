@@ -33,7 +33,9 @@ import { Utils } from "./lib/utils";
 import Camera = require("./lib/camera");
 import PTZDriver = require("./lib/PTZDriver");
 import DeviceService = require("./services/device_service");
+import DeviceIOService = require("./services/deviceio_service");
 import MediaService = require("./services/media_service");
+import Media2Service = require("./services/media2_service");
 import PTZService = require("./services/ptz_service");
 import ImagingService = require("./services/imaging_service");
 import DiscoveryService = require("./services/discovery_service");
@@ -114,6 +116,11 @@ for (var i in config.DeviceInformation) {
 }
 
 let webserver = express();
+webserver.use(function(req, res, next) {
+  var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+  console.log("request received : " + fullUrl);
+  next();
+});
 let httpserver = http.createServer(webserver);
 httpserver.listen(config.ServicePort);
 
@@ -121,13 +128,17 @@ let ptz_driver = new PTZDriver(config);
 
 let camera = new Camera(config, webserver);
 let device_service = new DeviceService(config, httpserver, ptz_driver.process_ptz_command);
+let deviceio_service = new DeviceIOService(config, httpserver, ptz_driver.process_ptz_command);
 let ptz_service = new PTZService(config, httpserver, ptz_driver.process_ptz_command, ptz_driver);
 let imaging_service = new ImagingService(config, httpserver, ptz_driver.process_ptz_command);
 let media_service = new MediaService(config, httpserver, camera, ptz_service); // note ptz_service dependency
+let media2_service = new Media2Service(config, httpserver, camera, ptz_service); 
 let discovery_service = new DiscoveryService(config);
 
 device_service.start();
+deviceio_service.start();
 media_service.start();
+media2_service.start();
 ptz_service.start();
 imaging_service.start();
 discovery_service.start();

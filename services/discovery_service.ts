@@ -109,6 +109,7 @@ class DiscoveryService {
                   </wsa:EndpointReference>
                   <d:Types>dn:NetworkVideoTransmitter</d:Types>
                   <d:Scopes>
+                    onvif://www.onvif.org/Profile/T
                     onvif://www.onvif.org/type/video_encoder
                     onvif://www.onvif.org/type/ptz
                     onvif://www.onvif.org/hardware/${encodeURIComponent(this.config.DeviceInformation.Model)}

@@ -21,6 +21,10 @@ class MediaService extends SoapService {
 
   constructor(config: rposConfig, server: Server, camera: Camera, ptz_service: PTZService) {
     super(config, server);
+    this.init(config,server,camera,ptz_service);
+  }
+
+  init(config: rposConfig, server: Server, camera: Camera, ptz_service: PTZService) {
     this.media_service = require('./stubs/media_service.js').MediaService;
 
     this.camera = camera;
@@ -37,7 +41,10 @@ class MediaService extends SoapService {
     
     this.extendService();
   }
-
+  getPort() {
+    return this.media_service.MediaService.Media;
+  }
+  
   starting() {
     var listeners = this.webserver.listeners('request').slice();
     this.webserver.removeAllListeners('request');
@@ -52,15 +59,17 @@ class MediaService extends SoapService {
             utils.log.info("ffmpeg - already running");
             this.ffmpeg_responses.push(response);
           } else {
-            var cmd = `ffmpeg -fflags nobuffer -probesize 256 -rtsp_transport tcp -i rtsp://127.0.0.1:${this.config.RTSPPort}/${this.config.RTSPName} -vframes 1  -r 1 -s 640x360 -y /dev/shm/snapshot.jpg`;
+            //var cmd = `ffmpeg -fflags nobuffer -probesize 32 -analyzeduration 0 -rtsp_transport tcp -i rtsp://127.0.0.1:${this.config.RTSPPort}/${this.config.RTSPName} -vframes 1  -r 1 -s 640x360 -y /dev/shm/snapshot.jpg`;
+            //var cmd = `ffmpeg -fflags nobuffer -probesize 256 -analyzeduration 0 -i /dev/video0 -vframes 1  -r 1 -s 640x360 -y /dev/shm/snapshot.jpg`;
+            var cmd = `/usr/bin/python3 python/gst-rtsp-snapshot.py -v -u rtsp://127.0.0.1:${this.config.RTSPPort}/${this.config.RTSPName} -o /dev/shm/snapshot.jpg`
             var options = { timeout: 15000 };
-            utils.log.info("ffmpeg - starting");
+            utils.log.info("Snapshot - starting - " + cmd);
             this.ffmpeg_responses.push(response);
             this.ffmpeg_process = exec(cmd, options, (error, stdout, stderr) => {
               // callback
-              utils.log.info("ffmpeg - finished");
+              utils.log.info("Snapshot - finished");
               if (error) {
-                utils.log.warn('ffmpeg exec error: %s', error);
+                utils.log.warn('Snapshot exec error: %s', error);
               }
               // deliver the JPEG (or the logo jpeg file)
               for (let responseItem of this.ffmpeg_responses) {
@@ -106,11 +115,13 @@ class MediaService extends SoapService {
   }
 
   started() {
+    console.log("starting rtsp server");
     this.camera.startRtsp();
   }
 
   extendService() {
-    var port = this.media_service.MediaService.Media;
+    console.log("Media extends");
+    var port = this.getPort();
 
     var cameraOptions = this.camera.options;
     var cameraSettings = this.camera.settings;
@@ -160,7 +171,8 @@ class MediaService extends SoapService {
 
     var videoEncoderConfiguration = {
       attributes: {
-        token: "encoder_config_token"
+        token: "encoder_config_token",
+        GuaranteedFrameRate: "false"
       },
       Name: "PiCameraConfiguration",
       UseCount: 0,
@@ -209,9 +221,65 @@ class MediaService extends SoapService {
       Bounds: { attributes: { x: 0, y: 0, width: 1920, height: 1080 } }
     };
 
-    var audioEncoderConfigurationOptions = {
-      Options: []
+    var audioSource = {
+      attributes: {
+        token: "audio_src_token"
+      },
+      Channels: 1
     };
+
+    var audioSourceConfiguration = {
+      Name: "Primary Audio Source",
+      UseCount: 0,
+      attributes: {
+          token: "audio_src_config_token"
+      },
+      SourceToken: "audio_src_token"
+    }
+
+    var audioEncoderConfigurationOption = {
+      Encoding: "AAC",
+      Multicast: {
+        Address: {
+          Type: "IPv4",
+          IPv4Address: "0.0.0.0"
+        },
+        Port: 0,
+        TTL:  1,
+        AutoStart: false
+      },
+      SampleRate: 48000,
+      SessionTimeout: "PT1000S"
+    };
+
+    var audioOutputConfiguration = {
+      Name: "Primary Audio Output",
+      UseCount: 0,
+      attributes: {
+        token: "audio_out_config_token"
+      },
+      OutputToken: 'audio_out_token',
+      OutputLevel: 50
+    }
+
+    var audioDecoderConfiguration = {
+      Name: "Primary Audio Output Decoder",
+      UseCount: 0,
+      attributes: {
+        token: "audio_out_dec_config_token"
+      }
+    }
+
+    var audioDecoderConfigurationOption = {
+      AACDecOptions :{
+        Bitrate : [8000],
+        SampleRateRange : [48000]
+      },
+      G711DecOptions :{
+        Bitrate : [8000],
+        SampleRateRange : [48000]
+      }
+    }
 
     var profile = {
       Name: "CurrentProfile",
@@ -220,10 +288,17 @@ class MediaService extends SoapService {
       },
       VideoSourceConfiguration: videoSourceConfiguration,
       VideoEncoderConfiguration: videoEncoderConfiguration,
-      PTZConfiguration: this.ptz_service.ptzConfiguration
+      PTZConfiguration: this.ptz_service.ptzConfiguration,
+      AudioSourceConfiguration: audioSourceConfiguration,
+      AudioEncoderConfiguration: audioEncoderConfigurationOption,
+      Extension: {
+        AudioOutputConfiguration:audioOutputConfiguration,
+        AudioDecoderConfiguration: audioDecoderConfiguration
+      }
     };
 
     port.GetServiceCapabilities = (args /*, cb, headers*/) => {
+      console.log("GetServiceCapabilities : " + JSON.stringify(args));
       var GetServiceCapabilitiesResponse = {
         Capabilities: {
           attributes: {
@@ -259,32 +334,48 @@ class MediaService extends SoapService {
     //
     //};
     port.GetStreamUri = (args /*, cb, headers*/) => {
-
-     // Usually RTSP server is on same IP Address as the ONVIF Service
-     // Setting RTSPAddress in the config file lets you to use another IP Address
-     let rtspAddress = utils.getIpAddress();
-     if (this.config.RTSPAddress.length > 0) rtspAddress = this.config.RTSPAddress;
-
-      var GetStreamUriResponse = {
-        MediaUri: {
-          Uri: (args.StreamSetup.Stream == "RTP-Multicast" && this.config.MulticastEnabled ? 
-            `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPMulticastName}` :
-            `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPName}`),
-          InvalidAfterConnect: false,
-          InvalidAfterReboot: false,
-          Timeout: "PT30S"
-        }
-      };
+      console.log("GetStreamUri : " + JSON.stringify(args));
+      // Usually RTSP server is on same IP Address as the ONVIF Service
+      // Setting RTSPAddress in the config file lets you to use another IP Address
+      let rtspAddress = utils.getIpAddress();
+      if (this.config.RTSPAddress.length > 0) rtspAddress = this.config.RTSPAddress;
+      var GetStreamUriResponse 
+      if(args.StreamSetup != null){
+        GetStreamUriResponse = {
+          MediaUri: {
+            Uri: (args.StreamSetup.Stream == "RTP-Multicast" && this.config.MulticastEnabled ? 
+              `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPMulticastName}` :
+              `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPName}`),
+            InvalidAfterConnect: false,
+            InvalidAfterReboot: false,
+            Timeout: "PT30S"
+          }
+        };
+      } else {
+        GetStreamUriResponse = {
+          MediaUri: {
+            Uri: `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPName}`,
+            InvalidAfterConnect: false,
+            InvalidAfterReboot: false,
+            Timeout: "PT30S"
+          }
+        };
+      }
+      console.log("Response : " + JSON.stringify(GetStreamUriResponse));
       return GetStreamUriResponse;
     };
 
     port.GetProfile = (args) => {
+      console.log("\tGetProfile : " + JSON.stringify(args));
       var GetProfileResponse = { Profile: profile };
+      //console.log("\tReturn : " + JSON.stringify(GetProfileResponse));
       return GetProfileResponse;
     };
 
     port.GetProfiles = (args) => {
+      utils.log.debug('\tGetting Profiles : ' + JSON.stringify(args));
       var GetProfilesResponse = { Profiles: [profile] };
+      //console.log('\tReturn : ' + JSON.stringify(GetProfilesResponse));
       return GetProfilesResponse;
     };
 
@@ -299,6 +390,7 @@ class MediaService extends SoapService {
     };
 
     port.GetVideoSources = (args) => {
+        utils.log.debug('Getting Video Sources');
         var GetVideoSourcesResponse = { VideoSources: [videoSource] };
         return GetVideoSourcesResponse;
     }
@@ -352,6 +444,7 @@ class MediaService extends SoapService {
     };
 
     port.GetSnapshotUri = (args) => {
+      console.log("GetSnapshotUri : " + JSON.stringify(args));
       var GetSnapshotUriResponse = {
         MediaUri : {
           Uri : "http://" + utils.getIpAddress() + ":" + this.config.ServicePort + "/web/snapshot.jpg",
@@ -360,13 +453,63 @@ class MediaService extends SoapService {
           Timeout : "PT30S"
         }
       };
+      console.log("Return : " + JSON.stringify(GetSnapshotUriResponse));
       return GetSnapshotUriResponse;
     };
 
+
+    port.GetAudioSources = (args) => {
+      utils.log.debug('GetAudioSources : ' + JSON.stringify(args));
+      var GetAudioSourcesResponse = { AudioSources: [audioSource] };
+      return GetAudioSourcesResponse;
+    }
+
+    port.GetAudioSourceConfigurations = (args) => {
+      utils.log.debug('GetAudioSourceConfigurations : ' + JSON.stringify(args));
+      var GetAudioSourceConfigurationsResponse = { Configurations: [audioSourceConfiguration] };
+      return GetAudioSourceConfigurationsResponse;
+    };
+
+    port.GetAudioSourceConfiguration = (args) => {
+      utils.log.debug('GetAudioSourceConfiguration : ' + JSON.stringify(args));
+      var GetAudioSourceConfigurationResponse = { Configurations: audioSourceConfiguration };
+      return GetAudioSourceConfigurationResponse;
+    };
+
     port.GetAudioEncoderConfigurationOptions = (args) => {
-      var GetAudioEncoderConfigurationOptionsResponse = { Options: [{}] };
+      utils.log.debug('GetAudioEncoderConfigurationOptions : ' + JSON.stringify(args));
+      var GetAudioEncoderConfigurationOptionsResponse = { Options: [audioEncoderConfigurationOption] };
       return GetAudioEncoderConfigurationOptionsResponse;
     };
+    port.GetAudioEncoderConfigurationOption = (args) => {
+      utils.log.debug('GetAudioEncoderConfigurationOption : ' + JSON.stringify(args));
+      var GetAudioEncoderConfigurationOptionResponse = { Configurations: audioEncoderConfigurationOption };
+      return GetAudioEncoderConfigurationOptionResponse;
+    };
+
+    port.GetAudioOutputConfigurations = (args) => {
+      utils.log.debug('GetAudioOutputConfigurations : ' + JSON.stringify(args));
+      var GetAudioOutputConfigurationsResponse = { Configurations: audioOutputConfiguration };
+      return GetAudioOutputConfigurationsResponse;
+    }
+
+    //port.AddAudioOutputConfiguration = (args) => {
+    //  utils.log.debug('Adding Audio Output Config ' + JSON.stringify(args));
+    //}
+
+    port.GetAudioDecoderConfigurations = (args) => {
+      console.log('\tGetAudioDecoderConfigurations : ' + JSON.stringify(args));
+      var GetAudioDecoderConfigurationsResponse = { Configurations: audioDecoderConfiguration};
+      console.log('\tReturn' + JSON.stringify(GetAudioDecoderConfigurationsResponse));
+      return GetAudioDecoderConfigurationsResponse;
+    }
+
+    port.GetAudioDecoderConfigurationOptions = (args) => {
+      console.log('\tGetAudioDecoderConfigurationOptions : ' + JSON.stringify(args));
+      var GetAudioDecoderConfigurationOptionsResponse = { Options: [audioDecoderConfigurationOption]};
+      console.log('\tReturn : ' + JSON.stringify(GetAudioDecoderConfigurationOptionsResponse));
+      return GetAudioDecoderConfigurationOptionsResponse;
+    }
   }
 }
 export = MediaService;

@@ -90,6 +90,7 @@ class DeviceService extends SoapService {
     };
 
     port.GetServices = (args /*, cb, headers*/) => {
+      console.log("GetServices : " + JSON.stringify(args));
       // ToDo. Check value of args.IncludeCapability
 
       var GetServicesResponse = {
@@ -97,27 +98,107 @@ class DeviceService extends SoapService {
         {
           Namespace : "http://www.onvif.org/ver10/device/wsdl",
           XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/device_service`,
+          Capabilities : {
+            Network : {
+              IPFilter : "true",
+              ZeroConfiguration : "true",
+              IPVersion6 : "true",
+              DynDNS : "true",
+              Dot11Configuration : "false",
+              Dot1XConfigurations : "0",
+              HostnameFromDHCP : "true",
+              NTP : "1",
+              DHCPv6 : "true"
+            },
+            Security : {
+              "TLS1.0" : "true",
+              "TLS1.1" : "true",
+              "TLS1.2" : "true",
+              OnboardKeyGeneration : "false",
+              AccessPolicyConfig : "false",
+              DefaultAccessPolicy : "true",
+              Dot1X : "false",
+              RemoteUserHandling : "false",
+              "X.509Token" : "false",
+              SAMLToken : "false",
+              KerberosToken : "false",
+              UsernameToken : "true",
+              HttpDigest : "true",
+              RELToken : "false",
+              SupportedEAPMethods : "0",
+              MaxUsers : "32",
+              MaxUserNameLength : "32",
+              MaxPasswordLength : "16"
+            },
+            System : {
+              DiscoveryResolve : "false",
+              DiscoveryBye : "true",
+              RemoteDiscovery : "false",
+              SystemBackup : "false",
+              SystemLogging : "true",
+              FirmwareUpgrade : "true",
+              HttpFirmwareUpgrade : "true",
+              HttpSystemBackup : "false",
+              HttpSystemLogging : "false",
+              HttpSupportInformation : "false",
+              StorageConfiguration : "true",
+              MaxStorageConfigurations : "8"
+            }
+          },
           Version : { 
-            Major : 2,
-            Minor : 5,
-          }
-        },
-        { 
-          Namespace : "http://www.onvif.org/ver20/imaging/wsdl",
-          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/imaging_service`,
-          Version : { 
-            Major : 2,
-            Minor : 5,
+            Major : 18,
+            Minor : 12,
           }
         },
         { 
           Namespace : "http://www.onvif.org/ver10/media/wsdl",
           XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/media_service`,
+          Capabilities : {
+            SnapshotUri : "true",
+            Rotation : "false",
+            VideoSourceMode : "false",
+            OSD : "true"
+          },
           Version : { 
             Major : 2,
-            Minor : 5,
+            Minor : 60,
           }
         },
+        //Events
+        { 
+          Namespace : "http://www.onvif.org/ver20/imaging/wsdl",
+          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/imaging_service`,
+          Capabilities : {
+            ImageStabilization : "false"
+          },
+          Version : { 
+            Major : 16,
+            Minor : 6,
+          }
+        },
+        {
+          Namespace : "http://www.onvif.org/ver10/deviceIO/wsdl",
+          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/deviceio_service`,
+          Capabilities : {
+            VideoSources : "1",
+            VideoOutputs : "0",
+            AudioSources : "1",
+            AudioOutputs : "1",
+            RelayOutputs : "0",
+            DigitalInputs : "0",
+            SerialPorts : "1",
+            DigitalInputOptions : "true"
+          },
+          Version : { 
+            Major : 16,
+            Minor : 12,
+          }
+        },
+        //analytics
+        //recording
+        //search
+        //replay
+        //media
         { 
           Namespace : "http://www.onvif.org/ver20/ptz/wsdl",
           XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/ptz_service`,
@@ -125,6 +206,22 @@ class DeviceService extends SoapService {
             Major : 2,
             Minor : 5,
           },
+        },
+        { 
+          Namespace : "http://www.onvif.org/ver20/media/wsdl",
+          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/media2_service`,
+          Capabilities : { 
+            SnapshotUri : "true",
+            Rotation : "false",
+            VideoSourceMode : "false",
+            OSD : "true",
+            Mask : "true",
+            SourceMask : "true"
+          },
+          Version : { 
+            Major : 16,
+            Minor : 12,
+          }
         }]
       };
 
@@ -133,6 +230,7 @@ class DeviceService extends SoapService {
 
 
     port.GetCapabilities = (args /*, cb, headers*/) => {
+      console.log("GetCapabilities : " + JSON.stringify(args))
       var category = args.Category; // Category is Optional and may be undefined
       //{ 'All', 'Analytics', 'Device', 'Events', 'Imaging', 'Media', 'PTZ' }
       var GetCapabilitiesResponse = {
@@ -234,6 +332,22 @@ class DeviceService extends SoapService {
           XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/ptz_service`
         }
       }
+
+
+      if (category === undefined || category == "All" || category == "Extension") {
+        GetCapabilitiesResponse.Capabilities["Extension"] = {
+          DeviceIO:{
+            XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/deviceio_service`,
+            VideoSources:1,
+            VideoOutputs:0,
+            AudioSources:1,
+            AudioOutputs:1,
+            RelayOutputs:1
+          }
+        }
+      }
+
+      //console.log("return : " + JSON.stringify(GetCapabilitiesResponse));
       return GetCapabilitiesResponse;
     };
 
@@ -261,12 +375,16 @@ class DeviceService extends SoapService {
     };
 
     port.GetScopes = (args) => {
-      var GetScopesResponse = { Scopes: [] };
+      console.log("GetScopes : " + JSON.stringify(args));
+      var GetScopesResponse = {Scopes: []};
       GetScopesResponse.Scopes.push({
           ScopeDef: "Fixed",
           ScopeItem: "onvif://www.onvif.org/location/unknow"
       });
-
+      GetScopesResponse.Scopes.push({
+        ScopeDef: "Fixed",
+        ScopeItem: "onvif://www.onvif.org/Profile/T"
+      });
       GetScopesResponse.Scopes.push({
         ScopeDef: "Fixed",
         ScopeItem: ("onvif://www.onvif.org/hardware/" + this.config.DeviceInformation.Model)
@@ -281,6 +399,7 @@ class DeviceService extends SoapService {
     };
 
     port.GetServiceCapabilities = (args /*, cb, headers*/) => {
+      console.log("GetServiceCapabilities : " + JSON.stringify(args));
       var GetServiceCapabilitiesResponse = {
         Capabilities: {
           Network: {
@@ -404,6 +523,7 @@ class DeviceService extends SoapService {
     };
 
     port.GetRelayOutputs = (args /*, cb, headers*/) => {
+      console.log("GetRelayOutputs : " + JSON.stringify(args));
       var GetRelayOutputsResponse = {
         RelayOutputs: [{
           attributes: {
@@ -416,6 +536,7 @@ class DeviceService extends SoapService {
           }
         }]
       };
+      console.log("return : " + JSON.stringify(GetRelayOutputsResponse));
       return GetRelayOutputsResponse;
     };
 
