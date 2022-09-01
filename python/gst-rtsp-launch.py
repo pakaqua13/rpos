@@ -379,7 +379,9 @@ class StreamServer:
 			launch_str = launch_str + '! h264parse ! rtph264pay name=pay0'
 
 			#Audio Channelaudioparse ! audio/x-raw,rate=44100,channels=1 !
-			launch_str = launch_str + " alsasrc ! audio/x-raw,channels=1 ! audioconvert ! audiorate"
+			launch_str = launch_str + ' alsasrc !'
+			#launch_str = launch_str + ' audiotestsrc !'
+			launch_str = launch_str + ' audio/x-raw,channels=1 ! audioconvert ! audiorate'
 			launch_str = launch_str + ' ! mulawenc ! audio/x-mulaw,channels=1,rate=8000 ! queue ! rtppcmupay name=pay1'
 			
 			#Closing bin
@@ -390,20 +392,23 @@ class StreamServer:
 		log.debug(launch_str)
 		cam_mutex.acquire()
 		try:
-			log.error("launch : " + launch_str)
 			log.info("Starting service on port "+str(self.port)+" at url /"+self.name)
 
-			back_str = ' capsfilter caps=\"application/x-rtp, media=audio, payload=0, clock-rate=8000, encoding-name=PCMU\" name=depay_backchannel !'
+			back_str = ' capsfilter caps=\"application/x-rtp, media=audio, payload=0, clock-rate=8000, channels=1, encoding-name=PCMU\" name=\"depay_backchannel\" !'
 			back_str = back_str + ' rtppcmudepay !'
 			back_str = back_str + ' mulawdec !'
 			back_str = back_str + ' audioconvert ! audioresample !'
 			back_str = back_str + ' queue !'
-			#back_str = back_str + ' fakesink'
-			back_str = back_str + ' autoaudiosink sync=false'
+			back_str = back_str + ' fakesink sync=false'
+			#back_str = back_str + ' autoaudiosink sync=false'
+			#back_str = back_str + ' alsasink sync=false'
+			
 			#back_str = back_str + ' omxhdmiaudiosink'
 			back_str = back_str + ' '
-			back_str = "(" + back_str + ")"
+			back_str = '(' + back_str + ' )'
+			
 			log.error('back launch : ' + back_str)
+
 			self.factory.set_backchannel_launch(back_str)
 			self.factory.set_launch(launch_str)
 			self.server.set_service(str(self.port))
@@ -411,7 +416,6 @@ class StreamServer:
 			self.mounts.add_factory("/"+str(self.name), self.factory)
 			self.context_id = self.server.attach(None)
 			
-			#mainloop.run()
 			self.mainthread = Thread(target=self.mainloop.run)
 			self.mainthread.daemon = True
 			self.mainthread.start()
@@ -422,8 +426,8 @@ class StreamServer:
 		
 	def start(self):
 		p = subprocess.Popen("ps -ax | grep rpos.js", shell=True, stdout=subprocess.PIPE)
-		output = p.stdout.read()
-		while self.stayAwake and bytes("node","utf-8") in output:
+		output = p.stdout.read().decode('utf-8')
+		while self.stayAwake and "rpos" in output:
 			if os.stat(self.file).st_mtime != self.configDate:
 				log.info("Updating stream settings")
 				self.readConfig()
