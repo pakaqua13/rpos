@@ -23,7 +23,6 @@ var MediaService = (function (_super) {
         this.ffmpeg_responses = [];
         this.media_service = require('./stubs/media_service.js').MediaService;
         this.camera = camera;
-        this.camera.startSample();
         // setTimeout(this.camera.startSample, 5000)
         this.ptz_service = ptz_service;
         this.serviceOptions = {
