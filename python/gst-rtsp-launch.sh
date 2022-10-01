@@ -7,7 +7,7 @@ echo $@
 LD_LIBRARY_PATH=/home/quedale/git/cerbero/build/dist/linux_x86_64/lib \
 LIBRARY_PATH=/home/quedale/git/cerbero/build/dist/linux_x86_64/lib/gstreamer-1.0:/home/quedale/git/cerbero/build/dist/linux_x86_64/lib \
 PKG_CONFIG_PATH=/home/quedale/git/cerbero/build/dist/linux_x86_64/lib/pkgconfig \
-~/DevGit/GstRtspOnvifTest/build/onvif-server $@
+~/git/OnvifDeviceManager/build/onvif-server $@
 
 exit 0
 
