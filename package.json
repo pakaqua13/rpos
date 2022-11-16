@@ -3,6 +3,10 @@
   "version": "2.1.0",
   "description": "rpos",
   "main": "rpos.js",
+  "scripts": {
+    "tsc": "tsc",
+    "start:ws": "nodemon rpos.ts"
+  },
   "license": "MIT",
   "author": {
     "name": "Jeroen Versteege",
@@ -25,11 +29,13 @@
     "macos-release": "~2.0.0",
     "node-pelcod": "^0.3.0",
     "node-uuid": "1.4.8",
+    "nodemon": "^2.0.20",
     "pan-tilt-hat": "^1.2.1",
     "rpi-version": "^1.4.3",
     "serialport": "^9.1.0",
     "soap": "https://github.com/BreeeZe/node-soap.git",
     "tenx-usb-missile-launcher-driver": "^0.2.0",
+    "ts-node": "^10.9.1",
     "xml2js": "0.4.23"
   },
   "devDependencies": {
