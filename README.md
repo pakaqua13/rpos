@@ -158,6 +158,10 @@ sudo apt install git gstreamer1.0-plugins-base \
  gstreamer1.0-omx-rpi gstreamer1.0-omx
 ```
 
+On Ubuntu 20.04 lts
+```
+sudo apt install libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio
+```
 You can check it is verson 1.14 with ```gst-launch-1.0 --version```
 
 Then install Python Binding, GIR Files (GObjectIntrospection Repository - makes APIs from C libraries)
