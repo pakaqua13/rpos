@@ -1,7 +1,14 @@
 # Fork
 This fork is to start working on a Profile T feature implementation. (More specifically two-way audio)
 WIP - At this point the camera side of work should be functional. I just need a proper Onvif Profile T client to test it. 
-I started working on a Onvif Linux Client for the sole purpose of testing this. (Repo TBD)
+I started working on a Onvif Linux Client for the sole purpose of testing this. [The [OnvifDeviceManager](https://github.com/Quedale/OnvifDeviceManager) repo is a WIP]
+
+I tried my best to implement the backchannel feature using the python bindings, but there seems to be a bug there a reference is not releases and won't get pushed on the backpipe.
+For now I gave up dealing with the python binding and I'm using my own launch solution.
+
+The reference is currently hardcoded inside "python/gst-rtsp-launch.sh" and should be updated accordingly.
+
+The sources for "onvif-server" can be found under the [OnvifDeviceManager](https://github.com/Quedale/OnvifDeviceManager) repository.
 
 # rpos
 
