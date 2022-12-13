@@ -1,14 +1,22 @@
 # Fork
-This fork is to start working on a Profile T feature implementation. (More specifically two-way audio)
-WIP - At this point the camera side of work should be functional. I just need a proper Onvif Profile T client to test it. 
-I started working on a Onvif Linux Client for the sole purpose of testing this. [The [OnvifDeviceManager](https://github.com/Quedale/OnvifDeviceManager) repo is a WIP]
+This fork is to start working on a Profile T feature implementation. (More specifically two-way audio)  
 
-I tried my best to implement the backchannel feature using the python bindings, but there seems to be a bug where a GstBuffer pointer reference is not released and won't get pushed on the backpipe.
-For now I gave up dealing with the python binding and I'm using my own launch solution.
+WIP - At this point the camera side of work should be functional. I just need a proper Onvif Profile T client to test it.   
+I started working on a Onvif Linux Client for the sole purpose of testing this. [The [OnvifDeviceManager](https://github.com/Quedale/OnvifDeviceManager) repo is a WIP]  
 
-The reference is currently hardcoded inside "python/gst-rtsp-launch.sh" and should be updated accordingly.
+I tried my best to implement the backchannel feature using the python bindings, but there seems to be a bug where a GstBuffer pointer reference is not released and won't get pushed on the backpipe.  
+For now I gave up dealing with the python binding and I'm using my own launch solution.  
 
-The sources for "onvif-server" can be found under the [OnvifDeviceManager](https://github.com/Quedale/OnvifDeviceManager) repository.
+Update : I noticed some patch notes related to the new "push-backchannel-sample" signal, which is suposed to resolve this issue. (see comments under function *new_sample* in updated [test-onvif.c](https://gitlab.freedesktop.org/gstreamer/gstreamer/-/blob/main/subprojects/gst-plugins-good/tests/examples/rtsp/test-onvif.c))  
+
+At this point I already have a decently functionnal rtsp launcher which supports backchannel.  
+The sources for "onvifserver" can be found under the [OnvifRtspServer](https://github.com/Quedale/OnvifRtspLauncher) repository.  
+
+# Fork features
+I added a new RtspServer type (#4) configurable in the rposConfig.json file.  
+The new type supports raw v4l and picam CameraDevice. (e.g. "/dev/video0" or "picam")  
+
+"STEP 5.d" was added to the procedures below in order to use it.
 
 # rpos
 
@@ -100,7 +108,7 @@ Older Raspbian users (eg those running Jessie) can install NodeJS and NPM with t
 ### STEP 3 - GET RPOS SOURCE, INSTALL DEPENDENCIES
 
 ```
-git clone https://github.com/BreeeZe/rpos.git
+git clone https://github.com/Quedale/rpos.git
 cd rpos
 npm install
 ```
@@ -204,9 +212,21 @@ Note: You do not need to load V4L2 modules when using rpicamsrc (option 3).
 No longer required. Raspberry Pi OS in June 2021 is shipping with GStreamer 1.14 and the Gst RTSP Server library is included
 
 
+#### STEP 5.d - OPTION 4: USING OnvifRtspLauncher (Fork Feature)
+Running *autogen.sh* will pull, configure, and build OnvifRtspServer and its dependencies.  
+OnvifRtspServer currently supports build under x86_64 and RPi4.  
+
+x86_64
+```
+./autogen.sh
+```
+RPi
+```
+./autogen.sh --enable-rpi
+```
+
 ### STEP 6 - EDIT CONFIG
 Go back to the 'rpos' folder
-
 
 Rename or copy `rposConfig.sample-*.json` to `rposConfig.json`. (Choosing the appropriate sample to start with)
 
