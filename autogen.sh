@@ -17,4 +17,3 @@ cd build
 
 ../autogen.sh $@
 make -j$(nproc)
-make install
