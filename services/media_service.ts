@@ -63,7 +63,7 @@ class MediaService extends SoapService {
             if(this.config.RTSPServer == 3){ //If gstreamer is used, leverage the custom python launcher using shared libs (Faster than ffmpeg) 
               cmd = `/usr/bin/python3 python/gst-rtsp-snapshot.py -v -u rtsp://127.0.0.1:${this.config.RTSPPort}/${this.config.RTSPName} -o /dev/shm/snapshot.jpg`
             } else if(this.config.RTSPServer == 4){ //If onvifserver is used, use embedded screenshot feature to reduce dependencies
-              cmd = `./subprojects/OnvifRtspLauncher/build/onvifserver -s rtsp://127.0.0.1:${this.config.RTSPPort}/${this.config.RTSPName} -o /dev/shm/snapshot.jpg`
+              cmd = `./subprojects/OnvifRtspLauncher/build/onvifserver -s rtspt://127.0.0.1:${this.config.RTSPPort}/${this.config.RTSPName} -o /dev/shm/snapshot.jpg`
             } else { //Use rpos default.
               cmd = `ffmpeg -fflags nobuffer -probesize 256 -rtsp_transport tcp -i rtsp://127.0.0.1:${this.config.RTSPPort}/${this.config.RTSPName} -vframes 1  -r 1 -s 640x360 -y /dev/shm/snapshot.jpg`;
             }
