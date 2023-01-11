@@ -216,6 +216,33 @@ No longer required. Raspberry Pi OS in June 2021 is shipping with GStreamer 1.14
 Running *autogen.sh* will pull, configure, and build OnvifRtspServer and its dependencies.  
 OnvifRtspServer currently supports build under x86_64 and RPi4.  
 
+
+##### Build Dependencies
+Note that I don't like depending on sudo. I will eventually get around to identifying and building missing dependencies.
+
+Install the latest build tools from pip and apt
+```
+sudo apt install python3-pip
+python3 -m pip install pip --upgrade
+python3 -m pip install meson
+python3 -m pip install ninja
+sudo apt install libtool
+sudo apt install flex
+sudo apt install bison
+sudo apt install libasound2-dev
+sudo apt install libpulse-dev
+sudo apt install libgudev-1.0-dev
+```
+I'm not sure if this is true for all distros, but this is required to get the new binary in the system's PATH
+```
+export PATH=$PATH:$HOME/.local/bin
+```
+
+Install gettext
+```
+sudo apt-get install gettext
+```
+
 x86_64
 ```
 ./autogen.sh
