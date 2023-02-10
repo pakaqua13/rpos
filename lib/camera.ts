@@ -73,9 +73,9 @@ class Camera {
         }
       }
       if (this.config.CameraType == 'testsrc') {
-        if (this.config.RTSPServer != 3) {
+        if (this.config.RTSPServer != 3 && this.config.RTSPServer != 4) {
           // Only GStreamer RTSP is supported now
-          console.log('Only GStreamer RTSP mode is supported for Test Source video');
+          console.log('Only GStreamer or OnvifRtspLauncher mode is supported for Test Source video');
           process.exit(1);
         }
       }
@@ -235,7 +235,7 @@ class Camera {
         if (this.config.RTSPServer == 2) this.rtspServer = utils.spawn("v4l2rtspserver", ["-P",this.config.RTSPPort.toString(), "-u" , this.config.RTSPName.toString(),"-W",this.settings.resolution.Width.toString(),"-H",this.settings.resolution.Height.toString(),"/dev/video0"]);
         //if (this.config.RTSPServer == 3) this.rtspServer = utils.spawn("./python/gst-rtsp-launch.sh", ["-P",this.config.RTSPPort.toString(), "-u" , this.config.RTSPName.toString(),"-W",this.settings.resolution.Width.toString(),"-H",this.settings.resolution.Height.toString(), "-t", this.config.CameraType, "-d", (this.config.CameraDevice == "" ? "auto" : this.config.CameraDevice)]);
         if (this.config.RTSPServer == 3) this.rtspServer = utils.spawn("./python/gst-rtsp-launch.sh", ["-p",this.config.RTSPPort.toString(), "-m" , this.config.RTSPName.toString(),"-w",this.settings.resolution.Width.toString(),"-h",this.settings.resolution.Height.toString(), "-v", (this.config.CameraDevice == "" ? "auto" : this.config.CameraDevice)]);
-        if (this.config.RTSPServer == 4) this.rtspServer = utils.spawn("./subprojects/OnvifRtspLauncher/build/onvifserver", ["-p",this.config.RTSPPort.toString(), "-m" , this.config.RTSPName.toString(),"-w",this.settings.resolution.Width.toString(),"-h",this.settings.resolution.Height.toString(), "-v", (this.config.CameraDevice == "" ? "test" : this.config.CameraDevice)]);
+        if (this.config.RTSPServer == 4) this.rtspServer = utils.spawn("./subprojects/OnvifRtspLauncher/build/onvifserver", ["-p",this.config.RTSPPort.toString(), "-m" , this.config.RTSPName.toString(),"-w",this.settings.resolution.Width.toString(),"-h",this.settings.resolution.Height.toString(), "-v", (this.config.CameraType == "testsrc" ? "test" : this.config.CameraDevice), "-a", (this.config.CameraType == "testsrc" ? "test" : "")]);
     }
 
     if (this.rtspServer) {

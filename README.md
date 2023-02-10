@@ -132,6 +132,7 @@ RTSP Server options for Pi / Linux:
 1. RPOS comes with a pre-compiled ARM binary for a simple RTSP server. The source is in the ‘cpp’ folder. (option 1)
 1. mpromonet RTSP Server (option 2)
 1. GStreamer RTSP Server (option 3)
+1. Custom Gstreamer Onvif RTSP Server implementation [OnvifRtspServer](https://github.com/Quedale/OnvifRtspLauncher) (Option 4)
 
 RTSP Server options 2 & 3 offer more features, but require additional setup. See instructions below.
 Currently USB camera is only supported by GStreamer RTSP Server
