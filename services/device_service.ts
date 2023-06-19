@@ -577,8 +577,10 @@ class DeviceService extends SoapService {
           }
         };
       } else {
-        return GetNetworkDefaultGatewayResponse;
+        // TODO
+        // return empty result
       }
+      return GetNetworkDefaultGatewayResponse;
     };
 
     port.GetRelayOutputs = (args /*, cb, headers*/) => {
