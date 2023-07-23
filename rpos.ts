@@ -107,6 +107,7 @@ if (config.DeviceInformation.Model == undefined) config.DeviceInformation.Model 
 if (config.DeviceInformation.SerialNumber == undefined) config.DeviceInformation.SerialNumber = utils.getSerial();
 if (config.DeviceInformation.FirmwareVersion == undefined) config.DeviceInformation.FirmwareVersion = pjson.version;
 if (config.DeviceInformation.HardwareId == undefined) config.DeviceInformation.HardwareId = '1001';
+if (config.Codec == undefined) config.Codec = "h264";
 
 utils.setConfig(config);
 utils.testIpAddress();
