@@ -1,5 +1,5 @@
 # Fork
-This fork is to start working on a Profile T feature implementation. (More specifically two-way audio)  
+This fork is to start working on a Profile T feature implementation. Including but not limited to: two-way audio, mjpeg and h265 (More specifically two-way audio)  
 
 WIP - At this point the camera side of work should be functional. I just need a proper Onvif Profile T client to test it.   
 I started working on a Onvif Linux Client for the sole purpose of testing this. [The [OnvifDeviceManager](https://github.com/Quedale/OnvifDeviceManager) repo is a WIP]  
