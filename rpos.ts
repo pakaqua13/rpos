@@ -108,6 +108,7 @@ if (config.DeviceInformation.SerialNumber == undefined) config.DeviceInformation
 if (config.DeviceInformation.FirmwareVersion == undefined) config.DeviceInformation.FirmwareVersion = pjson.version;
 if (config.DeviceInformation.HardwareId == undefined) config.DeviceInformation.HardwareId = '1001';
 if (config.Codec == undefined) config.Codec = "h264";
+if (config.FPS == undefined) config.FPS = 10;
 
 utils.setConfig(config);
 utils.testIpAddress();
