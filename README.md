@@ -1,3 +1,23 @@
+# Fork
+This fork is to start working on a Profile T feature implementation. Including but not limited to: two-way audio, mjpeg and h265.
+
+WIP - At this point the camera side of work should be functional. I just need a proper Onvif Profile T client to test it.   
+I started working on a Onvif Linux Client for the sole purpose of testing this. [The [OnvifDeviceManager](https://github.com/Quedale/OnvifDeviceManager) repo is a WIP]  
+
+I tried my best to implement the backchannel feature using the python bindings, but there seems to be a bug where a GstBuffer pointer reference is not released and won't get pushed on the backpipe.  
+For now I gave up dealing with the python binding and I'm using my own launch solution.  
+
+Update : I noticed some patch notes related to the new "push-backchannel-sample" signal, which is suposed to resolve this issue. (see comments under function *new_sample* in updated [test-onvif.c](https://gitlab.freedesktop.org/gstreamer/gstreamer/-/blob/main/subprojects/gst-plugins-good/tests/examples/rtsp/test-onvif.c))  
+
+At this point I already have a decently functionnal rtsp launcher which supports backchannel.  
+The sources for "onvifserver" can be found under the [OnvifRtspServer](https://github.com/Quedale/OnvifRtspLauncher) repository.  
+
+# Fork features
+I added a new RtspServer type (#4) configurable in the rposConfig.json file.  
+The new type supports raw v4l and picam CameraDevice. (e.g. "/dev/video0" or "picam")  
+
+"STEP 5.d" was added to the procedures below in order to use it.
+
 # rpos
 
 Node.js based ONVIF Camera/NVT software that turns a Raspberry Pi, Windows, Linux or Mac computer into an ONVIF Camera and RTSP Server. It implements the key parts of Profile S and Profile T (http://www.onvif.org). It has special support for the Raspberry Pi Camera and Pimoroni Pan-Tilt HAT.
@@ -88,7 +108,7 @@ Older Raspbian users (eg those running Jessie) can install NodeJS and NPM with t
 ### STEP 3 - GET RPOS SOURCE, INSTALL DEPENDENCIES
 
 ```
-git clone https://github.com/BreeeZe/rpos.git
+git clone https://github.com/Quedale/rpos.git
 cd rpos
 npm install
 ```
@@ -112,6 +132,7 @@ RTSP Server options for Pi / Linux:
 1. RPOS comes with a pre-compiled ARM binary for a simple RTSP server. The source is in the ‘cpp’ folder. (option 1)
 1. mpromonet RTSP Server (option 2)
 1. GStreamer RTSP Server (option 3)
+1. Custom Gstreamer Onvif RTSP Server implementation [OnvifRtspServer](https://github.com/Quedale/OnvifRtspLauncher) (Option 4)
 
 RTSP Server options 2 & 3 offer more features, but require additional setup. See instructions below.
 Currently USB camera is only supported by GStreamer RTSP Server
@@ -192,9 +213,48 @@ Note: You do not need to load V4L2 modules when using rpicamsrc (option 3).
 No longer required. Raspberry Pi OS in June 2021 is shipping with GStreamer 1.14 and the Gst RTSP Server library is included
 
 
+#### STEP 5.d - OPTION 4: USING OnvifRtspLauncher (Fork Feature)
+Running *autogen.sh* will pull, configure, and build OnvifRtspServer and its dependencies.  
+OnvifRtspServer currently supports build under x86_64 and RPi4.  
+
+
+##### Build Dependencies
+Note that I don't like depending on sudo. I will eventually get around to identifying and building missing dependencies.
+
+Install the latest build tools from pip and apt
+```
+sudo apt install python3-pip
+python3 -m pip install pip --upgrade
+python3 -m pip install meson
+python3 -m pip install ninja
+sudo apt install libtool
+sudo apt install flex
+sudo apt install bison
+sudo apt install libasound2-dev
+sudo apt install libpulse-dev
+sudo apt install libgudev-1.0-dev
+```
+I'm not sure if this is true for all distros, but this is required to get the new binary in the system's PATH
+```
+export PATH=$PATH:$HOME/.local/bin
+```
+
+Install gettext
+```
+sudo apt-get install gettext
+```
+
+x86_64
+```
+./autogen.sh
+```
+RPi
+```
+./autogen.sh --enable-rpi
+```
+
 ### STEP 6 - EDIT CONFIG
 Go back to the 'rpos' folder
-
 
 Rename or copy `rposConfig.sample-*.json` to `rposConfig.json`. (Choosing the appropriate sample to start with)
 

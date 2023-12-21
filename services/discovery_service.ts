@@ -109,6 +109,7 @@ class DiscoveryService {
                   </wsa:EndpointReference>
                   <d:Types>dn:NetworkVideoTransmitter</d:Types>
                   <d:Scopes>
+                    onvif://www.onvif.org/Profile/T
                     onvif://www.onvif.org/type/video_encoder
                     onvif://www.onvif.org/type/ptz
                     onvif://www.onvif.org/hardware/${encodeURIComponent(this.config.DeviceInformation.Model)}
@@ -131,7 +132,7 @@ class DiscoveryService {
     });
 
     discover_socket.bind(3702, () => {
-      return discover_socket.addMembership('239.255.255.250');
+      return discover_socket.addMembership('239.255.255.250', utils.getIpAddress());
     });
 
     utils.log.info("discovery_service started");

@@ -11,7 +11,7 @@ var releaseDir = 'release/' + version;
 
 //Compile task: compiles all .ts files to .js and generates sourcemaps to aid in debugging.
 gulp.task('default', function () {
-    return gulp.src(["**/*.ts", "!./node_modules/**/*", "!./typings/**/*"])
+    return gulp.src(["**/*.ts", "!./node_modules/**/*", "!./typings/**/*", "!./subprojects/**/*"])
         .pipe(sourcemaps.init())
         .pipe(ts('tsconfig.json'))
         .js

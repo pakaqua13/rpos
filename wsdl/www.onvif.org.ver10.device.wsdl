@@ -3871,10 +3871,4 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
-  <service name="DeviceService">
-    <documentation>WSDL File for DeviceService</documentation>
-    <port binding="tns:DeviceBinding" name="Device">
-      <soap:address location="http://localhost:8000/" />
-    </port>
-   </service>
 </wsdl:definitions>
