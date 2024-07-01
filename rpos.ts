@@ -118,11 +118,6 @@ for (var i in config.DeviceInformation) {
 }
 
 let webserver = express();
-webserver.use(function(req, res, next) {
-  var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-  console.log("request received : " + fullUrl);
-  next();
-});
 let httpserver = http.createServer(webserver);
 httpserver.listen(config.ServicePort);
 
