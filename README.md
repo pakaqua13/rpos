@@ -18,6 +18,15 @@ The new type supports raw v4l and picam CameraDevice. (e.g. "/dev/video0" or "pi
 
 "STEP 5.d" was added to the procedures below in order to use it.
 
+No longer using a fork of node-soap and instead using latest version (2024-06).
+Considerable amount of changes were necessary since the new version of node-soap has a hard time finding the appropriate nested nsPrefix.
+Fortunately, the new node-soap version supports manually overriding the nsPrefix. The conversion isn't complete yet. Just barely to keep it functional for now.
+The silver lining for this hassle is that it now supports anyType extensibility. 
+
+Updated to latest WSDL definition (2024-06).
+
+Using the latest version of npm (2024-06).
+
 # rpos
 
 Node.js based ONVIF Camera/NVT software that turns a Raspberry Pi, Windows, Linux or Mac computer into an ONVIF Camera and RTSP Server. It implements the key parts of Profile S and Profile T (http://www.onvif.org). It has special support for the Raspberry Pi Camera and Pimoroni Pan-Tilt HAT.
@@ -28,8 +37,6 @@ RPOS won an award in the 2018 ONVIF Open Source Challenge competition.
 
 The initial goal (by @BreeeZe) was to provide a ONVIF Media service which is compatible with Synology Surveillance Station to allow the Raspberry Pi to be used as a surveillance camera without the need for adding any custom camera files to your Synology NAS.
 First demo video @ https://youtu.be/ZcZbF4XOH7E
-
-This version uses a patched version of the "node-soap" v0.80 library (https://github.com/vpulim/node-soap/releases/tag/v0.8.0) located @ https://github.com/BreeeZe/node-soap
 
 The next goal (by @RogerHardiman) was to implement more of the ONVIF standard so that RPOS could be used with a wide range of CCTV systems and with ONVIF Device Manager and ONVIF Device Tool. Additional ONVIF Soap commands were added including the PTZ Service with backend drivers that control the Raspberry Pi Pan-Tit HAT or emit various RS485 based PTZ protocols including Pelco D and Sony Visca.
 
@@ -87,23 +94,13 @@ On the Pi you can install nodejs (ver10) and npm (5.8.0) with this command
 ```
 sudo apt install nodejs npm
 ```
-Next we install 'n', a node version manager and install Node v12 and NPM v6
+Next we install 'n', a node version manager and install Node v21 and NPM v6
 ```
 sudo npm install -g n
-sudo n install 12
+sudo n install 21
 ```
-Log out and log back in for the Path changes to take effect. You should now have Node v12 (check with node -v) and NPM v6 (check with npm -v)
+Log out and log back in for the Path changes to take effect. You should now have Node v21 (check with node -v) and NPM v6 (check with npm -v)
 
-#### STEP 2.1.b - OTHER METHODS
-
-Windows and Mac users can install Node from the nodejs.org web site.
-
-Older Raspbian users (eg those running Jessie) can install NodeJS and NPM with these commands
-
-```
-  curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-  sudo apt-get install nodejs
-```
 
 ### STEP 3 - GET RPOS SOURCE, INSTALL DEPENDENCIES
 

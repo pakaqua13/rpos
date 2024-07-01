@@ -35,9 +35,9 @@ class Media2Service extends MediaService {
     this.serviceOptions = {
       path: '/onvif/media2_service',
       services: this.media_service,
-      xml: fs.readFileSync('./wsdl/media2_service.wsdl', 'utf8'),
-      wsdlPath: 'wsdl/media2_service.wsdl',
-      onReady: function() {
+      xml: fs.readFileSync('./wsdl/onvif/services/media2_service.wsdl', 'utf8'),
+      uri: 'wsdl/onvif/services/media2_service.wsdl',
+      callback: function() {
         utils.log.info('media2_service started');
       }
     };
@@ -129,10 +129,30 @@ class Media2Service extends MediaService {
       UseCount: 1
     };
 
-    var profile = {
-      Name: "CurrentProfile",
+    var h264profile = {
+      Name: "H264Profile",
       attributes: {
-        token: "profile_token",
+        token: "h264_token",
+        fixed: "true"
+      },
+      Configurations : {
+        VideoSource: videoSource,
+        AudioSource: audioSource,
+        VideoEncoder: videoEncoder,
+        AudioEncoder: audioEncoder,
+        //Analytics
+        //PTZ : this.ptz_service.ptzConfiguration,
+        //Metadata
+        AudioOutput: audioOutput,
+        AudioDecoder : audioDecoder,
+        //Receiver
+      }
+    };
+
+    var mjpegprofile = {
+      Name: "MJPEGProfile",
+      attributes: {
+        token: "mjpeg_token",
         fixed: "true"
       },
       Configurations : {
@@ -151,14 +171,11 @@ class Media2Service extends MediaService {
 
 
     port.GetProfiles = (args) => {
-      utils.log.debug('\tGetting Profiles : ' + JSON.stringify(args));
-      var GetProfilesResponse = { Profiles: [profile] };
-      //console.log('\tReturn : ' + JSON.stringify(GetProfilesResponse));
+      var GetProfilesResponse = { Profiles: [h264profile,mjpegprofile] };
       return GetProfilesResponse;
     };
     
     port.GetStreamUri = (args /*, cb, headers*/) => {
-      console.log("\tGetStreamUri : " + JSON.stringify(args));
       // Usually RTSP server is on same IP Address as the ONVIF Service
       // Setting RTSPAddress in the config file lets you to use another IP Address
       let rtspAddress = utils.getIpAddress();
@@ -176,23 +193,18 @@ class Media2Service extends MediaService {
           Uri: `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPName}`
         };
       }
-      console.log("\tResponse : " + JSON.stringify(GetStreamUriResponse));
       return GetStreamUriResponse;
     };
 
     port.GetSnapshotUri = (args) => {
-      console.log("GetSnapshotUri : " + JSON.stringify(args));
       var GetSnapshotUriResponse = {
         Uri : "http://" + utils.getIpAddress() + ":" + this.config.ServicePort + "/web/snapshot.jpg"
       };
-      console.log("Return : " + JSON.stringify(GetSnapshotUriResponse));
       return GetSnapshotUriResponse;
     };
     
     port.GetAudioDecoderConfigurationOptions = (args) => {
-      console.log('\tGetAudioDecoderConfigurationOptions : ' + JSON.stringify(args));
       var GetAudioDecoderConfigurationOptionsResponse = { Options: [audioEncoder]};
-      console.log('\tReturn : ' + JSON.stringify(GetAudioDecoderConfigurationOptionsResponse));
       return GetAudioDecoderConfigurationOptionsResponse;
     }
   }

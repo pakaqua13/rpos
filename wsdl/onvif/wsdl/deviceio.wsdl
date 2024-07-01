@@ -1,10 +1,18 @@
-<?xml version="1.0" encoding="utf8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-     		  xmlns:tds="http://www.onvif.org/ver10/device/wsdl" xmlns:tmd="http://www.onvif.org/ver10/deviceIO/wsdl" targetNamespace="http://www.onvif.org/ver10/deviceIO/wsdl" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../onvif-wsdl-viewer.xsl"?>
+<!--
+Copyright (c) 2008-2021 by ONVIF: Open Network Video Interface Forum. All rights reserved.
+
+Recipients of this document may copy, distribute, publish, or display this document so long as this copyright notice, license and disclaimer are retained with all copies of the document. No license is granted to modify this document.
+
+THIS DOCUMENT IS PROVIDED "AS IS," AND THE CORPORATION AND ITS MEMBERS AND THEIR AFFILIATES, MAKE NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, OR TITLE; THAT THE CONTENTS OF THIS DOCUMENT ARE SUITABLE FOR ANY PURPOSE; OR THAT THE IMPLEMENTATION OF SUCH CONTENTS WILL NOT INFRINGE ANY PATENTS, COPYRIGHTS, TRADEMARKS OR OTHER RIGHTS.
+IN NO EVENT WILL THE CORPORATION OR ITS MEMBERS OR THEIR AFFILIATES BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL, PUNITIVE OR CONSEQUENTIAL DAMAGES, ARISING OUT OF OR RELATING TO ANY USE OR DISTRIBUTION OF THIS DOCUMENT, WHETHER OR NOT (1) THE CORPORATION, MEMBERS OR THEIR AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES, OR (2) SUCH DAMAGES WERE REASONABLY FORESEEABLE, AND ARISING OUT OF OR RELATING TO ANY USE OR DISTRIBUTION OF THIS DOCUMENT.  THE FOREGOING DISCLAIMER AND LIMITATION ON LIABILITY DO NOT APPLY TO, INVALIDATE, OR LIMIT REPRESENTATIONS AND WARRANTIES MADE BY THE MEMBERS AND THEIR RESPECTIVE AFFILIATES TO THE CORPORATION AND OTHER MEMBERS IN CERTAIN WRITTEN POLICIES OF THE CORPORATION.
+-->
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tds="http://www.onvif.org/ver10/device/wsdl" xmlns:tmd="http://www.onvif.org/ver10/deviceIO/wsdl" targetNamespace="http://www.onvif.org/ver10/deviceIO/wsdl">
 	<wsdl:import namespace="http://www.onvif.org/ver10/device/wsdl" location="./devicemgmt.wsdl"/>
 	<wsdl:types>
 		<xs:schema targetNamespace="http://www.onvif.org/ver10/deviceIO/wsdl" xmlns:tt="http://www.onvif.org/ver10/schema" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="21.06">
-			<xs:import namespace="http://www.onvif.org/ver10/schema" schemaLocation="./onvif.xsd"/>
+			<xs:import namespace="http://www.onvif.org/ver10/schema" schemaLocation="../schemas/onvif.xsd"/>
 			<!--===============================-->
 			<xs:element name="GetServiceCapabilities">
 				<xs:complexType>
@@ -777,35 +785,6 @@
 					<xs:element name="Items" type="tmd:ParityBit" minOccurs="0" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:complexType>
-			<!--===============================-->
-			<xs:element name="GetRelayOutputs">
-				<xs:complexType>
-					<xs:sequence>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="GetRelayOutputsResponse">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="RelayOutputs" type="tt:RelayOutput" minOccurs="0" maxOccurs="unbounded"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<!--===============================-->
-			<xs:element name="SetRelayOutputState">
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="RelayOutputToken" type="tt:ReferenceToken" minOccurs="1" maxOccurs="1"/>
-						<xs:element name="LogicalState" type="tt:RelayLogicalState" minOccurs="1" maxOccurs="1"/>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="SetRelayOutputStateResponse">
-				<xs:complexType>
-					<xs:sequence>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
 		</xs:schema>
 	</wsdl:types>
 	<wsdl:message name="GetServiceCapabilitiesRequest">
@@ -917,10 +896,10 @@
 		<wsdl:part name="parameters" element="tmd:GetAudioOutputConfigurationOptionsResponse"/>
 	</wsdl:message>
 	<wsdl:message name="GetRelayOutputsRequest">
-		<wsdl:part name="parameters" element="tmd:GetRelayOutputs"/>
+		<wsdl:part name="parameters" element="tds:GetRelayOutputs"/>
 	</wsdl:message>
 	<wsdl:message name="GetRelayOutputsResponse">
-		<wsdl:part name="parameters" element="tmd:GetRelayOutputsResponse"/>
+		<wsdl:part name="parameters" element="tds:GetRelayOutputsResponse"/>
 	</wsdl:message>
 	<wsdl:message name="SetRelayOutputSettingsRequest">
 		<wsdl:part name="parameters" element="tmd:SetRelayOutputSettings"/>
@@ -929,10 +908,10 @@
 		<wsdl:part name="parameters" element="tmd:SetRelayOutputSettingsResponse"/>
 	</wsdl:message>
 	<wsdl:message name="SetRelayOutputStateRequest">
-		<wsdl:part name="parameters" element="tmd:SetRelayOutputState"/>
+		<wsdl:part name="parameters" element="tds:SetRelayOutputState"/>
 	</wsdl:message>
 	<wsdl:message name="SetRelayOutputStateResponse">
-		<wsdl:part name="parameters" element="tmd:SetRelayOutputStateResponse"/>
+		<wsdl:part name="parameters" element="tds:SetRelayOutputStateResponse"/>
 	</wsdl:message>
 	<wsdl:message name="GetDigitalInputsRequest">
 		<wsdl:part name="parameters" element="tmd:GetDigitalInputs"/>
@@ -989,7 +968,30 @@
 			<wsdl:output message="tmd:GetServiceCapabilitiesResponse"/>
 		</wsdl:operation>
 		<wsdl:operation name="GetRelayOutputOptions">
-			<wsdl:documentation>fdsfsd</wsdl:documentation>
+			<wsdl:documentation>Request the available settings and ranges for one or all relay outputs. A device that has one or more RelayOutputs should support this command.<br/>
+				Two examples that illustrate usage:
+				<ul>
+					<li>
+					1) Device supports range PT1S to PT120S:
+					<pre>
+&lt;tmd:RelayOutputOptions token=&apos;44&apos;&gt;
+  &lt;tmd:Mode&gt;Monostable&lt;/tmd:Mode&gt;
+  &lt;tmd:DelayTimes&gt;1 120&lt;/tmd:DelayTimes&gt;
+&lt;/tmd:RelayOutputOptions&gt;
+							</pre>
+					</li>
+					<li>
+					2) Device supports values PT0.5S, PT1S, PT2s and PT1M:
+					<pre>
+&lt;tmd:RelayOutputOptions token=&apos;123&apos;&gt;
+  &lt;tmd:Mode&gt;Monostable&lt;/tmd:Mode&gt;
+  &lt;tmd:DelayTimes&gt;0.5 1 2 60&lt;/tmd:DelayTimes&gt;
+  &lt;tmd:Discrete&gt;True&lt;/tmd:Discrete&gt;
+&lt;/tmd:RelayOutputOptions&gt;
+								</pre>
+					</li>
+				</ul>
+			</wsdl:documentation>
 			<wsdl:input message="tmd:GetRelayOutputOptionsRequest"/>
 			<wsdl:output message="tmd:GetRelayOutputOptionsResponse"/>
 		</wsdl:operation>
@@ -1066,78 +1068,38 @@
 			<wsdl:input message="tmd:GetVideoOutputConfigurationOptionsRequest"/>
 			<wsdl:output message="tmd:GetVideoOutputConfigurationOptionsResponse"/>
 		</wsdl:operation>
-	
 		<wsdl:operation name="GetAudioSourceConfigurationOptions">
 			<wsdl:documentation>Request the AudioSourceConfigurationOptions of an AudioSource. A device with one ore more AudioSources shall support this command.<br/>This method is deprecated.</wsdl:documentation>
 			<wsdl:input message="tmd:GetAudioSourceConfigurationOptionsRequest"/>
 			<wsdl:output message="tmd:GetAudioSourceConfigurationOptionsResponse"/>
 		</wsdl:operation>
-
 		<wsdl:operation name="GetAudioOutputConfigurationOptions">
 			<wsdl:documentation>Request the available settings and ranges for a physical Audio output. A device that has one or more AudioOutputs shall support this command.<br/>This method is deprecated.</wsdl:documentation>
 			<wsdl:input message="tmd:GetAudioOutputConfigurationOptionsRequest"/>
 			<wsdl:output message="tmd:GetAudioOutputConfigurationOptionsResponse"/>
 		</wsdl:operation>
-	
-		<wsdl:operation name="GetRelayOutputs">
-			<wsdl:documentation>This operation gets a list of all available relay outputs and their settings.</wsdl:documentation>
-			<wsdl:input message="tmd:GetRelayOutputsRequest"/>
-			<wsdl:output message="tmd:GetRelayOutputsResponse"/>
-		</wsdl:operation>
-			
-		<wsdl:operation name="SetRelayOutputSettings">
-			<wsdl:documentation>Trtert</wsdl:documentation>
-			<wsdl:input message="tmd:SetRelayOutputSettingsRequest"/>
-			<wsdl:output message="tmd:SetRelayOutputSettingsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="SetRelayOutputState">
-			<wsdl:documentation>Modify the relay state.</wsdl:documentation>
-			<wsdl:input message="tmd:SetRelayOutputStateRequest"/>
-			<wsdl:output message="tmd:SetRelayOutputStateResponse"/>
-		</wsdl:operation>
-		-->
-		<wsdl:operation name="GetDigitalInputs">
-			<wsdl:documentation>This operation gets a list of all available digital inputs.</wsdl:documentation>
-			<wsdl:input message="tmd:GetDigitalInputsRequest"/>
-			<wsdl:output message="tmd:GetDigitalInputsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="GetDigitalInputConfigurationOptions">
-			<wsdl:documentation>This operation lists what configuration is available for digital inputs.</wsdl:documentation>
-			<wsdl:input message="tmd:GetDigitalInputConfigurationOptionsRequest"/>
-			<wsdl:output message="tmd:GetDigitalInputConfigurationOptionsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="SetDigitalInputConfigurations">
-			<wsdl:documentation>Modify a digital input configuration.</wsdl:documentation>
-			<wsdl:input message="tmd:SetDigitalInputConfigurationsRequest"/>
-			<wsdl:output message="tmd:SetDigitalInputConfigurationsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="GetSerialPorts">
-			<wsdl:input message="tmd:GetSerialPortsRequest"/>
-			<wsdl:output message="tmd:GetSerialPortsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="GetSerialPortConfiguration">
-			<wsdl:input message="tmd:GetSerialPortConfigurationRequest"/>
-			<wsdl:output message="tmd:GetSerialPortConfigurationResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="SetSerialPortConfiguration">
-			<wsdl:input message="tmd:SetSerialPortConfigurationRequest"/>
-			<wsdl:output message="tmd:SetSerialPortConfigurationResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="GetSerialPortConfigurationOptions">
-			<wsdl:input message="tmd:GetSerialPortConfigurationOptionsRequest"/>
-			<wsdl:output message="tmd:GetSerialPortConfigurationOptionsResponse"/>
-		</wsdl:operation>
-		<wsdl:operation name="SendReceiveSerialCommand">
-			<wsdl:input message="tmd:SendReceiveSerialCommandRequest"/>
-			<wsdl:output message="tmd:SendReceiveSerialCommandResponse"/>
-		</wsdl:operation>
 		<wsdl:operation name="GetRelayOutputs">
 			<wsdl:documentation>This operation gets a list of all available relay outputs and their settings.</wsdl:documentation>
 			<wsdl:input message="tmd:GetRelayOutputsRequest"/>
 			<wsdl:output message="tmd:GetRelayOutputsResponse"/>
 		</wsdl:operation>
 		<wsdl:operation name="SetRelayOutputSettings">
-			<wsdl:documentation>Trtert</wsdl:documentation>
+			<wsdl:documentation>This operation sets the settings of a relay output.
+				The relay can work in two relay modes: <ul>
+					<li>
+				Bistable – After setting the state, the relay remains in this state.</li>
+					<li>
+				Monostable – After setting the state, the relay returns to its idle state after the
+				specified time.</li>
+				</ul>
+				The physical idle state of a relay output can be configured by setting the IdleState to ‘open’ or
+				‘closed’ (inversion of the relay behaviour).<br/>
+				Idle State ‘open’ means that the relay is open when the relay state is set to ‘inactive’ through
+				the trigger command (see Section 8.5.3) and closed when the state is set to ‘active’ through
+				the same command.<br/>
+				Idle State ‘closed’ means, that the relay is closed when the relay state is set to ‘inactive’
+				through the trigger command (see Section 8.5.3) and open when the state is set to ‘active’
+				through the same command.</wsdl:documentation>
 			<wsdl:input message="tmd:SetRelayOutputSettingsRequest"/>
 			<wsdl:output message="tmd:SetRelayOutputSettingsResponse"/>
 		</wsdl:operation>
@@ -1450,4 +1412,3 @@
 		</wsdl:operation>
 	</wsdl:binding>
 </wsdl:definitions>
-

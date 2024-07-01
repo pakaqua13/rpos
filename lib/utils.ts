@@ -27,7 +27,7 @@ export module Utils {
     readonly pid: number;
     readonly connected: boolean;
     readonly exitCode: number | null;
-    readonly signalCode: number | null;
+    readonly signalCode: NodeJS.Signals | null;
     readonly spawnargs: string[];
     readonly spawnfile: string;
     constructor() {
@@ -36,6 +36,7 @@ export module Utils {
       this.stderr = this.stdout = new DummyReadable();
     }
     kill(signal?: any): boolean { return true };
+    [Symbol.dispose](): void {};
     send(message: any, sendHandle?: any): boolean { return true };
     disconnect() { };
     unref() { };

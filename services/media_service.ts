@@ -12,6 +12,9 @@ import { exec } from 'child_process';
 import PTZService = require('./ptz_service');
 var utils = Utils.utils;
 
+const NAMESPACE = "http://www.onvif.org/ver10/media/wsdl";
+const PATH = '/onvif/media_service';
+
 class MediaService extends SoapService {
   media_service: any;
   camera: Camera;
@@ -30,17 +33,26 @@ class MediaService extends SoapService {
     this.camera = camera;
     this.ptz_service = ptz_service;
     this.serviceOptions = {
-      path: '/onvif/media_service',
+      path: PATH,
       services: this.media_service,
-      xml: fs.readFileSync('./wsdl/media_service.wsdl', 'utf8'),
-      wsdlPath: 'wsdl/media_service.wsdl',
-      onReady: function() {
+      xml: fs.readFileSync('./wsdl/onvif/services/media_service.wsdl', 'utf8'),
+      uri: 'wsdl/onvif/services/media_service.wsdl',
+      callback: function() {
         utils.log.info('media_service started');
       }
     };
     
     this.extendService();
   }
+
+  static get namespace() {
+    return NAMESPACE;
+  }
+
+  static get path() {
+    return PATH;
+  }
+
   getPort() {
     return this.media_service.MediaService.Media;
   }
@@ -121,12 +133,11 @@ class MediaService extends SoapService {
   }
 
   started() {
-    console.log("starting rtsp server");
+    utils.log.debug("Media starting rtsp server");
     this.camera.startRtsp();
   }
 
   extendService() {
-    console.log("Media extends");
     var port = this.getPort();
 
     var cameraOptions = this.camera.options;
@@ -135,12 +146,42 @@ class MediaService extends SoapService {
 
     var h264Profiles = v4l2ctl.Controls.CodecControls.h264_profile.getLookupSet().map(ls=>ls.desc);
     h264Profiles.splice(1, 1);
-
-    var videoConfigurationOptions = {
+    
+    var videoConfigurationOptions = {  
+      //attributes : {
+        //GuaranteedFrameRateSupported : {xs:boolean}
+      //},
       QualityRange: {
         Min: 1,
         Max: 1
       },
+      JPEG : { 
+        ResolutionsAvailable: cameraOptions.resolutions,
+        FrameRateRange: {
+          Min: cameraOptions.framerates[0],
+          Max: cameraOptions.framerates[cameraOptions.framerates.length - 1]
+        },
+        EncodingIntervalRange: { Min: 1, Max: 1 },
+      },
+      //MPEG4 : { 
+        //ResolutionsAvailable : { 
+          //Width : { xs:int},
+          //Height : { xs:int}
+        //},
+        //GovLengthRange : { 
+          //Min : { xs:int},
+          //Max : { xs:int}
+        //},
+        //FrameRateRange : { 
+          //Min : { xs:int},
+          //Max : { xs:int}
+        //},
+        //EncodingIntervalRange : { 
+          //Min : { xs:int},
+          //Max : { xs:int}
+        //},
+        //Mpeg4ProfilesSupported : { xs:string}
+      //},
       H264: {
         ResolutionsAvailable: cameraOptions.resolutions,
         GovLengthRange: {
@@ -152,10 +193,46 @@ class MediaService extends SoapService {
           Max: cameraOptions.framerates[cameraOptions.framerates.length - 1]
         },
         EncodingIntervalRange: { Min: 1, Max: 1 },
-        H264ProfilesSupported: h264Profiles
+        H264ProfilesSupported: h264Profiles,
       },
       Extension: {
-        H264: {
+        JPEG : { 
+          ResolutionsAvailable: cameraOptions.resolutions,
+          FrameRateRange: {
+            Min: cameraOptions.framerates[0],
+            Max: cameraOptions.framerates[cameraOptions.framerates.length - 1]
+          },
+          EncodingIntervalRange: { Min: 1, Max: 1 },
+          BitrateRange: {
+            Min: cameraOptions.bitrates[0],
+            Max: cameraOptions.bitrates[cameraOptions.bitrates.length - 1]
+          }
+        },
+        //MPEG4 : { 
+          //ResolutionsAvailable : { 
+            //Width : { xs:int},
+            //Height : { xs:int}
+          //},
+          //GovLengthRange : { 
+            //Min : { xs:int},
+            //Max : { xs:int}
+          //},
+          //FrameRateRange : { 
+            //Min : { xs:int},
+            //Max : { xs:int}
+          //},
+          //EncodingIntervalRange : { 
+            //Min : { xs:int},
+            //Max : { xs:int}
+          //},
+          //Mpeg4ProfilesSupported : { xs:string}
+        //
+          //BitrateRange : { 
+            //Min : { xs:int},
+            //Max : { xs:int}
+          //}
+        //},
+        H264 : { 
           ResolutionsAvailable: cameraOptions.resolutions,
           GovLengthRange: {
             Min: v4l2ctl.Controls.CodecControls.h264_i_frame_period.getRange().min,
@@ -193,14 +270,19 @@ class MediaService extends SoapService {
         EncodingInterval: 1,
         BitrateLimit: v4l2ctl.Controls.CodecControls.video_bitrate.value / 1000
       },
+      //MPEG4 : { 
+        //GovLength : { xs:int},
+        //Mpeg4Profile : { xs:string}
+      //},
       H264: {
-        GovLength: v4l2ctl.Controls.CodecControls.h264_i_frame_period.value,
-        H264Profile: v4l2ctl.Controls.CodecControls.h264_profile.desc
+        "tt:GovLength": v4l2ctl.Controls.CodecControls.h264_i_frame_period.value,
+        "tt:H264Profile": v4l2ctl.Controls.CodecControls.h264_profile.desc
       },
       Multicast: {
-        Address: {
-          Type: "IPv4",
+        "tt:Address": {
+          "tt:Type": "IPv4",
           IPv4Address: "0.0.0.0"
+          //IPv6Address : { xs:token}
         },
         Port: 0,
         TTL:  1,
@@ -209,23 +291,193 @@ class MediaService extends SoapService {
       SessionTimeout: "PT1000S"
     };
 
-    var videoSource = {
-      attributes: {
+    var videoSource = { 
+      attributes : {
         token: "video_src_token"
       },
-      Framerate: 25,
-      Resolution: { Width: 1920, Height: 1280 }
+      Framerate : 25,
+      Resolution : { 
+        Width : 1920,
+        Height : 1280
+      },
+      //Imaging : { 
+        //BacklightCompensation : { 
+          //Mode : { xs:string},
+          //Level : { xs:float}
+        //},
+        //Brightness : { xs:float},
+        //ColorSaturation : { xs:float},
+        //Contrast : { xs:float},
+        //Exposure : { 
+          //Mode : { xs:string},
+          //Priority : { xs:string},
+          //Window : { 
+            //attributes : {
+              //bottom : {xs:float},
+              //top : {xs:float},
+              //right : {xs:float},
+              //left : {xs:float}
+            //}
+          //},
+          //MinExposureTime : { xs:float},
+          //MaxExposureTime : { xs:float},
+          //MinGain : { xs:float},
+          //MaxGain : { xs:float},
+          //MinIris : { xs:float},
+          //MaxIris : { xs:float},
+          //ExposureTime : { xs:float},
+          //Gain : { xs:float},
+          //Iris : { xs:float}
+        //},
+        //Focus : { 
+          //AutoFocusMode : { xs:string},
+          //DefaultSpeed : { xs:float},
+          //NearLimit : { xs:float},
+          //FarLimit : { xs:float}
+        //},
+        //IrCutFilter : { xs:string},
+        //Sharpness : { xs:float},
+        //WideDynamicRange : { 
+          //Mode : { xs:string},
+          //Level : { xs:float}
+        //},
+        //WhiteBalance : { 
+          //Mode : { xs:string},
+          //CrGain : { xs:float},
+          //CbGain : { xs:float}
+        //},
+        //Extension : { }
+      //},
+      //Extension : { 
+        //Imaging : { 
+          //BacklightCompensation : { 
+            //Mode : { xs:string},
+            //Level : { xs:float}
+          //},
+          //Brightness : { xs:float},
+          //ColorSaturation : { xs:float},
+          //Contrast : { xs:float},
+          //Exposure : { 
+            //Mode : { xs:string},
+            //Priority : { xs:string},
+            //Window : { 
+              //attributes : {
+                //bottom : {xs:float},
+                //top : {xs:float},
+                //right : {xs:float},
+                //left : {xs:float}
+              //}
+            //},
+            //MinExposureTime : { xs:float},
+            //MaxExposureTime : { xs:float},
+            //MinGain : { xs:float},
+            //MaxGain : { xs:float},
+            //MinIris : { xs:float},
+            //MaxIris : { xs:float},
+            //ExposureTime : { xs:float},
+            //Gain : { xs:float},
+            //Iris : { xs:float}
+          //},
+          //Focus : { 
+            //attributes : {
+              //AFMode : {tt:StringAttrList}
+            //},
+            //AutoFocusMode : { xs:string},
+            //DefaultSpeed : { xs:float},
+            //NearLimit : { xs:float},
+            //FarLimit : { xs:float},
+            //Extension : { }
+          //},
+          //IrCutFilter : { xs:string},
+          //Sharpness : { xs:float},
+          //WideDynamicRange : { 
+            //Mode : { xs:string},
+            //Level : { xs:float}
+          //},
+          //WhiteBalance : { 
+            //Mode : { xs:string},
+            //CrGain : { xs:float},
+            //CbGain : { xs:float},
+            //Extension : { }
+          //},
+          //Extension : { 
+            //ImageStabilization : { 
+              //Mode : { xs:string},
+              //Level : { xs:float},
+              //Extension : { }
+            //},
+            //Extension : { 
+              //IrCutFilterAutoAdjustment : [{ 
+                //BoundaryType : { xs:string},
+                //BoundaryOffset : { xs:float},
+                //ResponseTime : { xs:duration},
+                //Extension : { }
+              //}],
+              //Extension : { 
+                //ToneCompensation : { 
+                  //Mode : { xs:string},
+                  //Level : { xs:float},
+                  //Extension : { }
+                //},
+                //Defogging : { 
+                  //Mode : { xs:string},
+                  //Level : { xs:float},
+                  //Extension : { }
+                //},
+                //NoiseReduction : { 
+                  //Level : { xs:float}
+                //},
+                //Extension : { }
+              //}
+            //}
+          //}
+        //},
+        //Extension : { }
+      //}
     };
 
-    var videoSourceConfiguration = {
-      Name: "Primary Source",
-      UseCount: 0,
+    var videoSourceConfiguration = { 
       attributes: {
         token: "video_src_config_token"
       },
+      Name: "Primary Source",
+      UseCount: 0,
+      //attributes : {
+        //ViewMode : {xs:string}
+      //},
       SourceToken: "video_src_token",
-      Bounds: { attributes: { x: 0, y: 0, width: 1920, height: 1080 } }
-    };
+      Bounds: { attributes: { x: 0, y: 0, width: 1920, height: 1280 } }
+      //Extension : { 
+        //Rotate : { 
+          //Mode : { xs:string},
+          //Degree : { xs:int},
+          //Extension : { }
+        //},
+        //Extension : { 
+          //LensDescription : [{ 
+            //attributes : {
+              //FocalLength : {xs:float}
+            //},
+            //Offset : { 
+              //attributes : {
+                //x : {xs:float},
+                //y : {xs:float}
+              //}
+            //},
+            //Projection : { 
+              //Angle : { xs:float},
+              //Radius : { xs:float},
+              //Transmittance : { xs:float}
+            //},
+            //XFactor : { xs:float}
+          //}],
+          //SceneOrientation : [{ 
+            //Mode : { xs:string},
+            //Orientation : { xs:string}
+          //}]
+        //}
+      //}
+    }
 
     var audioSource = {
       attributes: {
@@ -247,7 +499,7 @@ class MediaService extends SoapService {
       Encoding: "AAC",
       Multicast: {
         Address: {
-          Type: "IPv4",
+          "tt:Type": "IPv4",
           IPv4Address: "0.0.0.0"
         },
         Port: 0,
@@ -287,38 +539,54 @@ class MediaService extends SoapService {
       }
     }
 
-    var profile = {
-      Name: "CurrentProfile",
+    var h264profile = {
+      "tt:Name": "H264Profile",
       attributes: {
-        token: "profile_token"
+        token: "h264_token"
       },
-      VideoSourceConfiguration: videoSourceConfiguration,
-      VideoEncoderConfiguration: videoEncoderConfiguration,
-      PTZConfiguration: this.ptz_service.ptzConfiguration,
-      AudioSourceConfiguration: audioSourceConfiguration,
-      AudioEncoderConfiguration: audioEncoderConfigurationOption,
-      Extension: {
-        AudioOutputConfiguration:audioOutputConfiguration,
-        AudioDecoderConfiguration: audioDecoderConfiguration
+      "tt:VideoSourceConfiguration": videoSourceConfiguration,
+      "tt:VideoEncoderConfiguration": videoEncoderConfiguration,
+      "tt:PTZConfiguration": this.ptz_service.ptzConfiguration,
+      "tt:AudioSourceConfiguration": audioSourceConfiguration,
+      "tt:AudioEncoderConfiguration": audioEncoderConfigurationOption,
+      "tt:Extension": {
+        "tt:AudioOutputConfiguration":audioOutputConfiguration,
+        "tt:AudioDecoderConfiguration": audioDecoderConfiguration
       }
     };
 
+    var mjpegprofile = {
+      "tt:Name": "MJPEGProfile",
+      attributes: {
+        token: "mjpeg_token"
+      },
+      "tt:VideoSourceConfiguration": videoSourceConfiguration,
+      "tt:VideoEncoderConfiguration": videoEncoderConfiguration,
+      "tt:PTZConfiguration": this.ptz_service.ptzConfiguration,
+      "tt:AudioSourceConfiguration": audioSourceConfiguration,
+      "tt:AudioEncoderConfiguration": audioEncoderConfigurationOption,
+      "tt:Extension": {
+        "tt:AudioOutputConfiguration":audioOutputConfiguration,
+        "tt:AudioDecoderConfiguration": audioDecoderConfiguration
+      }
+    };
+
+    //Overriding local trt prefix because its invoked from DeviceService as well
     port.GetServiceCapabilities = (args /*, cb, headers*/) => {
-      console.log("GetServiceCapabilities : " + JSON.stringify(args));
       var GetServiceCapabilitiesResponse = {
-        Capabilities: {
+        'trt:Capabilities': {
           attributes: {
             SnapshotUri: true,
             Rotation: false,
             VideoSourceMode: true,
             OSD: false
           },
-          ProfileCapabilities: {
+          'trt:ProfileCapabilities': {
             attributes: {
-              MaximumNumberOfProfiles: 1
+              MaximumNumberOfProfiles: 2
             }
           },
-          StreamingCapabilities: {
+          'trt:StreamingCapabilities': {
             attributes: {
               RTPMulticast: this.config.MulticastEnabled,
               RTP_TCP: true,
@@ -340,7 +608,6 @@ class MediaService extends SoapService {
     //
     //};
     port.GetStreamUri = (args /*, cb, headers*/) => {
-      console.log("GetStreamUri : " + JSON.stringify(args));
       // Usually RTSP server is on same IP Address as the ONVIF Service
       // Setting RTSPAddress in the config file lets you to use another IP Address
       let rtspAddress = utils.getIpAddress();
@@ -349,44 +616,39 @@ class MediaService extends SoapService {
       if(args.StreamSetup != null){
         GetStreamUriResponse = {
           MediaUri: {
-            Uri: (args.StreamSetup.Stream == "RTP-Multicast" && this.config.MulticastEnabled ? 
+            "tt:Uri": (args.StreamSetup.Stream == "RTP-Multicast" && this.config.MulticastEnabled ? 
               `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPMulticastName}` :
               `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPName}`),
-            InvalidAfterConnect: false,
-            InvalidAfterReboot: false,
-            Timeout: "PT30S"
+            "tt:InvalidAfterConnect": false,
+            "tt:InvalidAfterReboot": false,
+            "tt:Timeout": "PT30S"
           }
         };
       } else {
         GetStreamUriResponse = {
           MediaUri: {
-            Uri: `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPName}`,
-            InvalidAfterConnect: false,
-            InvalidAfterReboot: false,
-            Timeout: "PT30S"
+            "tt:Uri": `rtsp://${rtspAddress}:${this.config.RTSPPort}/${this.config.RTSPName}`,
+            "tt:InvalidAfterConnect": false,
+            "tt:InvalidAfterReboot": false,
+            "tt:Timeout": "PT30S"
           }
         };
       }
-      console.log("Response : " + JSON.stringify(GetStreamUriResponse));
       return GetStreamUriResponse;
     };
 
     port.GetProfile = (args) => {
-      console.log("\tGetProfile : " + JSON.stringify(args));
-      var GetProfileResponse = { Profile: profile };
-      //console.log("\tReturn : " + JSON.stringify(GetProfileResponse));
+      var GetProfileResponse = { Profile: h264profile };
       return GetProfileResponse;
     };
 
     port.GetProfiles = (args) => {
-      utils.log.debug('\tGetting Profiles : ' + JSON.stringify(args));
-      var GetProfilesResponse = { Profiles: [profile] };
-      //console.log('\tReturn : ' + JSON.stringify(GetProfilesResponse));
+      var GetProfilesResponse = { Profiles: [h264profile,mjpegprofile] };
       return GetProfilesResponse;
     };
 
     port.CreateProfile = (args) => {
-      var CreateProfileResponse = { Profile: profile };
+      var CreateProfileResponse = { Profile: h264profile };
       return CreateProfileResponse;
     };
 
@@ -396,7 +658,6 @@ class MediaService extends SoapService {
     };
 
     port.GetVideoSources = (args) => {
-        utils.log.debug('Getting Video Sources');
         var GetVideoSourcesResponse = { VideoSources: [videoSource] };
         return GetVideoSourcesResponse;
     }
@@ -450,51 +711,43 @@ class MediaService extends SoapService {
     };
 
     port.GetSnapshotUri = (args) => {
-      console.log("GetSnapshotUri : " + JSON.stringify(args));
       var GetSnapshotUriResponse = {
         MediaUri : {
-          Uri : "http://" + utils.getIpAddress() + ":" + this.config.ServicePort + "/web/snapshot.jpg",
-          InvalidAfterConnect : false,
-          InvalidAfterReboot : false,
-          Timeout : "PT30S"
+          "tt:Uri" : "http://" + utils.getIpAddress() + ":" + this.config.ServicePort + "/web/snapshot.jpg",
+          "tt:InvalidAfterConnect" : false,
+          "tt:InvalidAfterReboot" : false,
+          "tt:Timeout" : "PT30S"
         }
       };
-      console.log("Return : " + JSON.stringify(GetSnapshotUriResponse));
       return GetSnapshotUriResponse;
     };
 
 
     port.GetAudioSources = (args) => {
-      utils.log.debug('GetAudioSources : ' + JSON.stringify(args));
       var GetAudioSourcesResponse = { AudioSources: [audioSource] };
       return GetAudioSourcesResponse;
     }
 
     port.GetAudioSourceConfigurations = (args) => {
-      utils.log.debug('GetAudioSourceConfigurations : ' + JSON.stringify(args));
       var GetAudioSourceConfigurationsResponse = { Configurations: [audioSourceConfiguration] };
       return GetAudioSourceConfigurationsResponse;
     };
 
     port.GetAudioSourceConfiguration = (args) => {
-      utils.log.debug('GetAudioSourceConfiguration : ' + JSON.stringify(args));
       var GetAudioSourceConfigurationResponse = { Configurations: audioSourceConfiguration };
       return GetAudioSourceConfigurationResponse;
     };
 
     port.GetAudioEncoderConfigurationOptions = (args) => {
-      utils.log.debug('GetAudioEncoderConfigurationOptions : ' + JSON.stringify(args));
       var GetAudioEncoderConfigurationOptionsResponse = { Options: [audioEncoderConfigurationOption] };
       return GetAudioEncoderConfigurationOptionsResponse;
     };
     port.GetAudioEncoderConfigurationOption = (args) => {
-      utils.log.debug('GetAudioEncoderConfigurationOption : ' + JSON.stringify(args));
       var GetAudioEncoderConfigurationOptionResponse = { Configurations: audioEncoderConfigurationOption };
       return GetAudioEncoderConfigurationOptionResponse;
     };
 
     port.GetAudioOutputConfigurations = (args) => {
-      utils.log.debug('GetAudioOutputConfigurations : ' + JSON.stringify(args));
       var GetAudioOutputConfigurationsResponse = { Configurations: audioOutputConfiguration };
       return GetAudioOutputConfigurationsResponse;
     }
@@ -504,17 +757,149 @@ class MediaService extends SoapService {
     //}
 
     port.GetAudioDecoderConfigurations = (args) => {
-      console.log('\tGetAudioDecoderConfigurations : ' + JSON.stringify(args));
       var GetAudioDecoderConfigurationsResponse = { Configurations: audioDecoderConfiguration};
-      console.log('\tReturn' + JSON.stringify(GetAudioDecoderConfigurationsResponse));
       return GetAudioDecoderConfigurationsResponse;
     }
 
     port.GetAudioDecoderConfigurationOptions = (args) => {
-      console.log('\tGetAudioDecoderConfigurationOptions : ' + JSON.stringify(args));
       var GetAudioDecoderConfigurationOptionsResponse = { Options: [audioDecoderConfigurationOption]};
-      console.log('\tReturn : ' + JSON.stringify(GetAudioDecoderConfigurationOptionsResponse));
       return GetAudioDecoderConfigurationOptionsResponse;
+    }
+
+
+    port.GetCompatibleVideoEncoderConfigurations = (args) => {
+      var GetCompatibleVideoEncoderConfigurationsResponse = { 
+        //Configurations : [{ 
+          //attributes : {
+            //token : {tt:ReferenceToken}
+          //},
+          //Name : { xs:string},
+          //UseCount : { xs:int}
+        //
+          //attributes : {
+            //GuaranteedFrameRate : {xs:boolean}
+          //},
+          //Encoding : { xs:string},
+          //Resolution : { 
+            //Width : { xs:int},
+            //Height : { xs:int}
+          //},
+          //Quality : { xs:float},
+          //RateControl : { 
+            //FrameRateLimit : { xs:int},
+            //EncodingInterval : { xs:int},
+            //BitrateLimit : { xs:int}
+          //},
+          //MPEG4 : { 
+            //GovLength : { xs:int},
+            //Mpeg4Profile : { xs:string}
+          //},
+          //H264 : { 
+            //GovLength : { xs:int},
+            //H264Profile : { xs:string}
+          //},
+          //Multicast : { 
+            //Address : { 
+              //Type : { xs:string},
+              //IPv4Address : { xs:token},
+              //IPv6Address : { xs:token}
+            //},
+            //Port : { xs:int},
+            //TTL : { xs:int},
+            //AutoStart : { xs:boolean}
+          //},
+          //SessionTimeout : { xs:duration}
+        //}]
+      //
+      };
+      return GetCompatibleVideoEncoderConfigurationsResponse;
+    }
+    port.GetCompatibleMetadataConfigurations = (args) => {
+      var GetCompatibleMetadataConfigurationsResponse = { 
+        //Configurations : [{ 
+          //attributes : {
+            //token : {tt:ReferenceToken}
+          //},
+          //Name : { xs:string},
+          //UseCount : { xs:int}
+        //
+          //attributes : {
+            //CompressionType : {xs:string},
+            //GeoLocation : {xs:boolean},
+            //ShapePolygon : {xs:boolean}
+          //},
+          //PTZStatus : { 
+            //Status : { xs:boolean},
+            //Position : { xs:boolean}
+          //},
+          //Events : { 
+            //Filter : { wsnt:FilterType},
+            //SubscriptionPolicy : { }
+          //},
+          //Analytics : { xs:boolean},
+          //Multicast : { 
+            //Address : { 
+              //Type : { xs:string},
+              //IPv4Address : { xs:token},
+              //IPv6Address : { xs:token}
+            //},
+            //Port : { xs:int},
+            //TTL : { xs:int},
+            //AutoStart : { xs:boolean}
+          //},
+          //SessionTimeout : { xs:duration},
+          //AnalyticsEngineConfiguration : { 
+            //AnalyticsModule : [{ 
+              //attributes : {
+                //Name : {xs:string},
+                //Type : {xs:QName}
+              //},
+              //Parameters : { 
+                //SimpleItem : [{ }],
+                //ElementItem : [{ }],
+                //Extension : { }
+              //}
+            //}],
+            //Extension : { }
+          //},
+          //Extension : { }
+        //}]
+      //
+      };
+      return GetCompatibleMetadataConfigurationsResponse;
+    }
+    port.GetCompatibleAudioEncoderConfigurations = (args) => {
+      var GetCompatibleAudioEncoderConfigurationsResponse = { 
+        //Configurations : [{ 
+          //attributes : {
+            //token : {tt:ReferenceToken}
+          //},
+          //Name : { xs:string},
+          //UseCount : { xs:int}
+        //
+          //Encoding : { xs:string},
+          //Bitrate : { xs:int},
+          //SampleRate : { xs:int},
+          //Multicast : { 
+            //Address : { 
+              //Type : { xs:string},
+              //IPv4Address : { xs:token},
+              //IPv6Address : { xs:token}
+            //},
+            //Port : { xs:int},
+            //TTL : { xs:int},
+            //AutoStart : { xs:boolean}
+          //},
+          //SessionTimeout : { xs:duration}
+        //}]
+      //
+      };
+      return GetCompatibleAudioEncoderConfigurationsResponse;
+    }
+
+    port.SetVideoEncoderConfiguration = (args /*, cb, headers*/) => {
+      // args.Configuration
+      return {};
     }
   }
 }

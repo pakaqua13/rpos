@@ -1,6 +1,5 @@
 var gulp = require('gulp'),
     rename = require('gulp-rename'),
-    zip = require('gulp-zip'),
     pkg = require('./package.json'),
     ts = require('gulp-typescript'),
     sourcemaps = require('gulp-sourcemaps')

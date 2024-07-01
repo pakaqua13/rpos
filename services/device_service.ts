@@ -4,30 +4,44 @@ import fs = require("fs");
 import util = require("util");
 import os = require('os');
 import SoapService = require('../lib/SoapService');
+import MediaService = require("./media_service");
 import { Utils }  from '../lib/utils';
 import { Server } from 'http';
 import ip = require('ip');
 var utils = Utils.utils;
 
+const NAMESPACE = "http://www.onvif.org/ver10/device/wsdl";
+const PATH = '/onvif/device_service';
+
 class DeviceService extends SoapService {
   device_service: any;
   callback: any;
+  media_service: MediaService;
 
-  constructor(config: rposConfig, server: Server, callback) {
+  constructor(config: rposConfig, server: Server, media_service: MediaService,callback) {
     super(config, server);
 
     this.device_service = require('./stubs/device_service.js').DeviceService;
     this.callback = callback;
+    this.media_service = media_service;
 
     this.serviceOptions = {
-      path: '/onvif/device_service',
+      path: DeviceService.path,
       services: this.device_service,
-      xml: fs.readFileSync('./wsdl/device_service.wsdl', 'utf8'),
-      wsdlPath: 'wsdl/device_service.wsdl',
-      onReady: () => console.log('device_service started')
+      xml: fs.readFileSync('./wsdl/onvif/services/device_service.wsdl', 'utf8'),
+      uri: 'wsdl/onvif/services/device_service.wsdl',
+      callback: () => console.log('device_service started')
     };
 
     this.extendService();
+  }
+
+  static get namespace() {
+    return NAMESPACE;
+  }
+
+  static get path() {
+    return PATH;
   }
 
   extendService() {
@@ -58,20 +72,20 @@ class DeviceService extends SoapService {
 
       var GetSystemDateAndTimeResponse = {
         SystemDateAndTime: {
-          DateTimeType: "NTP",
-          DaylightSavings: now.dst(),
-          TimeZone: {
-            TZ: tz
+          "tt:DateTimeType": "NTP",
+          "tt:DaylightSavings": now.dst(),
+          "tt:TimeZone": {
+            "tt:TZ": tz
           },
-          UTCDateTime: {
-            Time: { Hour: now.getUTCHours(), Minute: now.getUTCMinutes(), Second: now.getUTCSeconds() },
-            Date: { Year: now.getUTCFullYear(), Month: now.getUTCMonth() + 1, Day: now.getUTCDate() }
+          "tt:UTCDateTime": {
+            "tt:Time": { "tt:Hour": now.getUTCHours(), "tt:Minute": now.getUTCMinutes(), "tt:Second": now.getUTCSeconds() },
+            "tt:Date": { "tt:Year": now.getUTCFullYear(), "tt:Month": now.getUTCMonth() + 1, "tt:Day": now.getUTCDate() }
           },
-          LocalDateTime: {
-            Time: { Hour: now.getHours(), Minute: now.getMinutes(), Second: now.getSeconds() },
-            Date: { Year: now.getFullYear(), Month: now.getMonth() + 1, Day: now.getDate() }
+          "tt:LocalDateTime": {
+            "tt:Time": { "tt:Hour": now.getHours(), "tt:Minute": now.getMinutes(), "tt:Second": now.getSeconds() },
+            "tt:Date": { "tt:Year": now.getFullYear(), "tt:Month": now.getMonth() + 1, "tt:Day": now.getDate() }
           },
-          Extension: {}
+          "tt:Extension": {}
         }
       };
       return GetSystemDateAndTimeResponse;
@@ -90,14 +104,12 @@ class DeviceService extends SoapService {
     };
 
     port.GetServices = (args /*, cb, headers*/) => {
-      console.log("GetServices : " + JSON.stringify(args));
       // ToDo. Check value of args.IncludeCapability
-
       var GetServicesResponse = {
         Service : [
         {
-          Namespace : "http://www.onvif.org/ver10/device/wsdl",
-          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/device_service`,
+          Namespace : DeviceService.namespace,
+          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}${DeviceService.path}`,
           Capabilities : {
             Network : {
               IPFilter : "true",
@@ -151,14 +163,9 @@ class DeviceService extends SoapService {
           }
         },
         { 
-          Namespace : "http://www.onvif.org/ver10/media/wsdl",
-          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/media_service`,
-          Capabilities : {
-            SnapshotUri : "true",
-            Rotation : "false",
-            VideoSourceMode : "false",
-            OSD : "true"
-          },
+          Namespace : MediaService.namespace,
+          XAddr : `http://${utils.getIpAddress() }:${this.config.ServicePort}${MediaService.path}`,
+          Capabilities : this.media_service.getPort().GetServiceCapabilities(),
           Version : { 
             Major : 2,
             Minor : 60,
@@ -238,68 +245,63 @@ class DeviceService extends SoapService {
       };
 
       if (category === undefined || category == "All" || category == "Device") {
-        GetCapabilitiesResponse.Capabilities["Device"] = {
-          XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/device_service`,
-          Network: {
-            IPFilter: false,
-            ZeroConfiguration: false,
-            IPVersion6: false,
-            DynDNS: false,
-            Extension: {
-              Dot11Configuration: false,
-              Extension: {}
-            }
+        // var device_caps = this.getPort().GetServiceCapabilities();
+        GetCapabilitiesResponse.Capabilities["tt:Device"] = {
+          "tt:XAddr": `http://${utils.getIpAddress() }:${this.config.ServicePort}${DeviceService.path}`,
+          "tt:Network": {
+            "tt:IPFilter": false,
+            "tt:ZeroConfiguration": false,
+            "tt:IPVersion6": false,
+            "tt:DynDNS": false
           },
-          System: {
-            DiscoveryResolve: false,
-            DiscoveryBye: false,
-            RemoteDiscovery: false,
-            SystemBackup: false,
-            SystemLogging: false,
-            FirmwareUpgrade: false,
-            SupportedVersions: {
-              Major: 2,
-              Minor: 5
+          "tt:System": {
+            "tt:DiscoveryResolve": false,
+            "tt:DiscoveryBye": false,
+            "tt:RemoteDiscovery": false,
+            "tt:SystemBackup": false,
+            "tt:SystemLogging": false,
+            "tt:FirmwareUpgrade": false,
+            "tt:SupportedVersions": {
+              "tt:Major": 22,
+              "tt:Minor": 12
             },
-            Extension: {
-              HttpFirmwareUpgrade: false,
-              HttpSystemBackup: false,
-              HttpSystemLogging: false,
-              HttpSupportInformation: false,
-              Extension: {}
+            "tt:Extension": {
+              "tt:HttpFirmwareUpgrade": false,
+              "tt:HttpSystemBackup": false,
+              "tt:HttpSystemLogging": false,
+              "tt:HttpSupportInformation": false
             }
           },
-          IO: {
-            InputConnectors: 0,
-            RelayOutputs: 1,
-            Extension: {
-              Auxiliary: false,
-              AuxiliaryCommands: "",
-              Extension: {}
+          "tt:IO": {
+            "tt:InputConnectors": 0,
+            "tt:RelayOutputs": 1,
+            "tt:Extension": {
+              "tt:Auxiliary": false,
+              "tt:AuxiliaryCommands": ""
             }
           },
-          Security: {
-            "TLS1.1": false,
-            "TLS1.2": false,
-            OnboardKeyGeneration: false,
-            AccessPolicyConfig: false,
-            "X.509Token": false,
-            SAMLToken: false,
-            KerberosToken: false,
-            RELToken: false,
-            Extension: {
-              "TLS1.0": false,
-              Extension: {
-                Dot1X: false,
-                RemoteUserHandling: false
+          "tt:Security": {
+            "tt:TLS1.1": false,
+            "tt:TLS1.2": false,
+            "tt:OnboardKeyGeneration": false,
+            "tt:AccessPolicyConfig": false,
+            "tt:X.509Token": false,
+            "tt:SAMLToken": false,
+            "tt:KerberosToken": false,
+            "tt:RELToken": false,
+            "tt:Extension": {
+              "tt:TLS1.0": false,
+              "tt:Extension": {
+                "tt:Dot1X": false,
+                "tt:RemoteUserHandling": false
               }
             }
           },
-          Extension: {}
+          "tt:Extension": {}
         };
       }
       if (category == undefined || category == "All" || category == "Events") {
-        GetCapabilitiesResponse.Capabilities["Events"] = {
+        GetCapabilitiesResponse.Capabilities["tt:Events"] = {
           XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/events_service`,
           WSSubscriptionPolicySupport: false,
           WSPullPointSupport: false,
@@ -307,35 +309,36 @@ class DeviceService extends SoapService {
         }
       }
       if (category === undefined || category == "All" || category == "Imaging") {
-        GetCapabilitiesResponse.Capabilities["Imaging"] = {
+        GetCapabilitiesResponse.Capabilities["tt:Imaging"] = {
           XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/imaging_service`
         }
       }
       if (category === undefined || category == "All" || category == "Media") {
-        GetCapabilitiesResponse.Capabilities["Media"] = {
-          XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/media_service`,
-          StreamingCapabilities: {
-            RTPMulticast: this.config.MulticastEnabled,
-            RTP_TCP: true,
-            RTP_RTSP_TCP: true,
-            Extension: {}
+        var media_caps = this.media_service.getPort().GetServiceCapabilities();
+        GetCapabilitiesResponse.Capabilities["tt:Media"] = {
+          "tt:XAddr": `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/media_service`,
+          "tt:StreamingCapabilities": {
+            "tt:RTPMulticast": media_caps['trt:Capabilities']['trt:StreamingCapabilities'].attributes.RTPMulticast,
+            "tt:RTP_TCP": media_caps['trt:Capabilities']['trt:StreamingCapabilities'].attributes.RTP_TCP,
+            "tt:RTP_RTSP_TCP": media_caps['trt:Capabilities']['trt:StreamingCapabilities'].attributes.RTP_RTSP_TCP,
+            "tt:Extension": {}
           },
-          Extension: {
-            ProfileCapabilities: {
-              MaximumNumberOfProfiles: 1
+          "tt:Extension": {
+            "tt:ProfileCapabilities": {
+              "tt:MaximumNumberOfProfiles": media_caps['trt:Capabilities']['trt:ProfileCapabilities'].attributes.MaximumNumberOfProfiles
             }
           }
         }
       }
       if (category === undefined || category == "All" || category == "PTZ") {
-        GetCapabilitiesResponse.Capabilities["PTZ"] = {
+        GetCapabilitiesResponse.Capabilities["tt:PTZ"] = {
           XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/ptz_service`
         }
       }
 
 
       if (category === undefined || category == "All" || category == "Extension") {
-        GetCapabilitiesResponse.Capabilities["Extension"] = {
+        GetCapabilitiesResponse.Capabilities["tt:Extension"] = {
           DeviceIO:{
             XAddr: `http://${utils.getIpAddress() }:${this.config.ServicePort}/onvif/deviceio_service`,
             VideoSources:1,
@@ -354,9 +357,9 @@ class DeviceService extends SoapService {
     port.GetHostname = (args /*, cb, headers*/) => {
       var GetHostnameResponse = {
         HostnameInformation: {
-          FromDHCP: false,
-          Name: os.hostname(),
-          Extension: {}
+          "tt:FromDHCP": false,
+          "tt:Name": os.hostname(),
+          "tt:Extension": {}
         }
       };
       return GetHostnameResponse;
@@ -375,24 +378,23 @@ class DeviceService extends SoapService {
     };
 
     port.GetScopes = (args) => {
-      console.log("GetScopes : " + JSON.stringify(args));
       var GetScopesResponse = {Scopes: []};
       GetScopesResponse.Scopes.push({
-          ScopeDef: "Fixed",
-          ScopeItem: "onvif://www.onvif.org/location/unknow"
+          "tt:ScopeDef": "Fixed",
+          "tt:ScopeItem": "onvif://www.onvif.org/location/unknow"
       });
       GetScopesResponse.Scopes.push({
-        ScopeDef: "Fixed",
-        ScopeItem: "onvif://www.onvif.org/Profile/T"
+        "tt:ScopeDef": "Fixed",
+        "tt:ScopeItem": "onvif://www.onvif.org/Profile/T"
       });
       GetScopesResponse.Scopes.push({
-        ScopeDef: "Fixed",
-        ScopeItem: ("onvif://www.onvif.org/hardware/" + this.config.DeviceInformation.Model)
+        "tt:ScopeDef": "Fixed",
+        "tt:ScopeItem": ("onvif://www.onvif.org/hardware/" + this.config.DeviceInformation.Model)
       });
 
       GetScopesResponse.Scopes.push({
-        ScopeDef: "Fixed",
-        ScopeItem: ("onvif://www.onvif.org/name/" + this.config.DeviceInformation.Manufacturer)
+        "tt:ScopeDef": "Fixed",
+        "tt:ScopeItem": ("onvif://www.onvif.org/name/" + this.config.DeviceInformation.Manufacturer)
       });
 
       return GetScopesResponse;
@@ -489,10 +491,10 @@ class DeviceService extends SoapService {
                 token: nwif
               },
               Enabled: true,
-              Info: {
-                Name: nwif,
-                HwAddress: mac,
-                MTU: 1500
+              "tt:Info": {
+                "tt:Name": nwif,
+                "tt:HwAddress": mac,
+                "tt:MTU": 1500
               },
               IPv4: {
                 Enabled: true,
@@ -536,7 +538,6 @@ class DeviceService extends SoapService {
           }
         }]
       };
-      console.log("return : " + JSON.stringify(GetRelayOutputsResponse));
       return GetRelayOutputsResponse;
     };
 
@@ -558,9 +559,74 @@ class DeviceService extends SoapService {
 //        }]
       };
       return GetUsersResponse;
-    }
+    };
 
+    port.GetDiscoveryMode = (args /*, cb, headers*/) => {
+      var GetDiscoveryModeResponse = { 
+        //DiscoveryMode : { xs:string}
+      //
+      };
+      return GetDiscoveryModeResponse;
+    };
 
+    port.GetDNS = (args /*, cb, headers*/) => {
+      var GetDNSResponse = { 
+        //DNSInformation : { 
+          //FromDHCP : { xs:boolean},
+          //SearchDomain : [{ xs:token}],
+          //DNSFromDHCP : [{ 
+            //Type : { xs:string},
+            //IPv4Address : { xs:token},
+            //IPv6Address : { xs:token}
+          //}],
+          //DNSManual : [{ 
+            //Type : { xs:string},
+            //IPv4Address : { xs:token},
+            //IPv6Address : { xs:token}
+          //}],
+          //Extension : { }
+        //}
+      //
+      };
+      return GetDNSResponse;
+    };
+
+    port.GetNetworkDefaultGateway = (args /*, cb, headers*/) => {
+      var GetNetworkDefaultGatewayResponse = { 
+        //NetworkGateway : { 
+          //IPv4Address : [{ xs:token}],
+          //IPv6Address : [{ xs:token}]
+        //}
+      };
+      return GetNetworkDefaultGatewayResponse;
+    };
+
+    port.GetCertificates = (args /*, cb, headers*/) => {
+      var GetCertificatesResponse = { 
+        //NvtCertificate : [{ 
+          //CertificateID : { xs:token},
+          //Certificate : { 
+            //attributes : {
+              //undefined : {}
+            //},
+            //Data : { xs:base64Binary}
+          //}
+        //}]
+      //
+      };
+      return GetCertificatesResponse;
+    };
+
+    port.GetCertificatesStatus = (args /*, cb, headers*/) => {
+      var GetCertificatesStatusResponse = { 
+        //CertificateStatus : [{ 
+          //CertificateID : { xs:token},
+          //Status : { xs:boolean}
+        //}]
+      //
+      };
+      return GetCertificatesStatusResponse;
+    };
   }
 }
 export = DeviceService;

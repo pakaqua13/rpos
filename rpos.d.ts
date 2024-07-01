@@ -51,8 +51,9 @@ interface SoapServiceOptions {
   path: string,
   services: any,
   xml: any,
-  wsdlPath: string,
-  onReady: () => void;
+  uri: string,
+  enableChunkedEncoding?: boolean, //TODO Support user parameter
+  callback?: (err: any, res: any) => void;
 }
 
 interface Date {

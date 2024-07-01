@@ -118,23 +118,18 @@ for (var i in config.DeviceInformation) {
 }
 
 let webserver = express();
-webserver.use(function(req, res, next) {
-  var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-  console.log("request received : " + fullUrl);
-  next();
-});
 let httpserver = http.createServer(webserver);
 httpserver.listen(config.ServicePort);
 
 let ptz_driver = new PTZDriver(config);
 
 let camera = new Camera(config, webserver);
-let device_service = new DeviceService(config, httpserver, ptz_driver.process_ptz_command);
 let deviceio_service = new DeviceIOService(config, httpserver, ptz_driver.process_ptz_command);
 let ptz_service = new PTZService(config, httpserver, ptz_driver.process_ptz_command, ptz_driver);
 let imaging_service = new ImagingService(config, httpserver, ptz_driver.process_ptz_command);
 let media_service = new MediaService(config, httpserver, camera, ptz_service); // note ptz_service dependency
 let media2_service = new Media2Service(config, httpserver, camera, ptz_service); 
+let device_service = new DeviceService(config, httpserver, media_service, ptz_driver.process_ptz_command);
 let discovery_service = new DiscoveryService(config);
 
 device_service.start();
