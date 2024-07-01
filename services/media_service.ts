@@ -743,26 +743,52 @@ class MediaService extends SoapService {
       return GetAudioEncoderConfigurationOptionsResponse;
     };
 
-    port.GetAudioSources = (args) => {
-      utils.log.debug('GetAudioSources : ' + JSON.stringify(args));
-      var GetAudioSourcesResponse = { AudioSources: [audioSource] };
-      return GetAudioSourcesResponse;
+    port.GetCompatibleVideoSourceConfigurations = (args) => {
+      // Args contains a ProfileToken
+      // We will return all Video Sources as being compatible
+
+      let GetCompatibleVideoSourceConfigurationsResponse = { Configurations: [videoSourceConfiguration] };
+      return GetCompatibleVideoSourceConfigurationsResponse;
     }
 
-    port.GetAudioSourceConfigurations = (args) => {
-      var GetAudioSourceConfigurationsResponse = { Configurations: [audioSourceConfiguration] };
-      return GetAudioSourceConfigurationsResponse;
-    };
-
-    port.GetAudioSourceConfiguration = (args) => {
-      var GetAudioSourceConfigurationResponse = { Configurations: audioSourceConfiguration };
-      return GetAudioSourceConfigurationResponse;
-    };
-
-    port.GetAudioEncoderConfigurationOptions = (args) => {
-      var GetAudioEncoderConfigurationOptionsResponse = { Options: [audioEncoderConfigurationOption] };
-      return GetAudioEncoderConfigurationOptionsResponse;
-    };
+    port.GetVideoSourceConfigurationOptions = (Args) => {
+      // Args will contain a ConfigurationToken or ProfileToken
+      var GetVideoSourceConfigurationOptionsResponse = { 
+        Options : {
+          BoundsRange : { 
+            XRange : { 
+              Min : 0,
+              Max : 0
+            },
+            YRange : { 
+              Min : 0,
+              Max : 0
+            },
+            WidthRange : { 
+              Min : 1920,
+              Max : 1920
+            },
+            HeightRange : { 
+              Min : 1080,
+              Max : 1080
+            }
+          },
+          VideoSourceTokensAvailable : "video_src_token"
+          //Extension : { 
+            //Rotate : { 
+              //Mode : { xs:string},
+              //DegreeList : { 
+                //Items : [{ xs:int}]
+              //},
+              //Extension : { }
+            //},
+            //Extension : { }
+          //}
+        }
+      };
+        return GetVideoSourceConfigurationOptionsResponse;
+    }
+    
     port.GetAudioEncoderConfigurationOption = (args) => {
       var GetAudioEncoderConfigurationOptionResponse = { Configurations: audioEncoderConfigurationOption };
       return GetAudioEncoderConfigurationOptionResponse;

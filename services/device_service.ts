@@ -487,28 +487,28 @@ class DeviceService extends SoapService {
     };
 
     port.GetNTP = (args /*, cb, headers*/) => {
-       var GetNTPResponse = { 
-          NTPInformation : { 
-            FromDHCP : false,
-            //NTPFromDHCP : [{ 
-            //  Type : { xs:string},
-            //  IPv4Address : { xs:token},
-            //  IPv6Address : { xs:token},
-            //  DNSname : { xs:token},
-            //  Extension : { }
-            //}],
-            NTPManual : [{ 
-              Type : "DNS",
-              //IPv4Address : { xs:token},
-              //IPv6Address : { xs:token},
-              DNSname : "pool.ntp.org",
-              Extension : { }
-            }],
+      var GetNTPResponse = { 
+        NTPInformation : { 
+          FromDHCP : false,
+          //NTPFromDHCP : [{ 
+          //  Type : { xs:string},
+          //  IPv4Address : { xs:token},
+          //  IPv6Address : { xs:token},
+          //  DNSname : { xs:token},
+          //  Extension : { }
+          //}],
+          NTPManual : [{ 
+            Type : "DNS",
+            //IPv4Address : { xs:token},
+            //IPv6Address : { xs:token},
+            DNSname : "pool.ntp.org",
             Extension : { }
-           } 
-        };
-        return GetNTPResponse;
+          }],
+          Extension : { }
+         } 
       };
+      return GetNTPResponse;
+    };
 
     port.SetNTP = (args /*, cb, headers*/) => {
       var SetNTPResponse = {};
