@@ -738,11 +738,6 @@ class MediaService extends SoapService {
       return GetAudioSourceConfigurationResponse;
     };
 
-    port.GetAudioEncoderConfigurationOptions = (args) => {
-      var GetAudioEncoderConfigurationOptionsResponse = { Options: [audioEncoderConfigurationOption] };
-      return GetAudioEncoderConfigurationOptionsResponse;
-    };
-
     port.GetCompatibleVideoSourceConfigurations = (args) => {
       // Args contains a ProfileToken
       // We will return all Video Sources as being compatible
@@ -942,11 +937,6 @@ class MediaService extends SoapService {
       //
       };
       return GetCompatibleAudioEncoderConfigurationsResponse;
-    }
-
-    port.SetVideoEncoderConfiguration = (args /*, cb, headers*/) => {
-      // args.Configuration
-      return {};
     }
   }
 }
