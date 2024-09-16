@@ -88,8 +88,14 @@ Add ‘gpu_mem=128’ in /boot/bootconf.txt and reboot
 
 ### STEP 2 - INSTALL NODEJS AND NPM
 
-[This step was tested in Raspberry Pi OS from June 2021. Older Pis may need some manual steps]
-On the Pi you can install nodejs (ver10) and npm (5.8.0) with this command
+[This step was tested in Raspberry Pi OS from June 2021. Older Pis may need some manual steps]   
+
+</b></b>
+<ins>On the original Raspberry Pi Zero (armv6) node 21 seems to be the last unofficial build supported.</ins>   
+<ins>Unofficial supported build available [here](https://unofficial-builds.nodejs.org/download/release/v21.6.2/).</ins>   
+
+</b></b></b>
+On newer Pi you can install nodejs (ver10) and npm (5.8.0) with this command
 ```
 sudo apt install nodejs npm
 ```
